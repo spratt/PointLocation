@@ -1,15 +1,5 @@
 Required Libraries:
+  o Persistent Skip List
   o Smart Pointers
 
-----------------------------------------------------------------------
-| Smart Pointers
-----------------------------------------------------------------------
-To get the latest version of the Smart Pointers library, please run
-the following in this directory:
-
-git clone git://github.com/spratt/SmartPointer.git
-
-
-To build this library, simply run:
-
-cd SmartPointer && make
+To install these libraries, please run get_libs.sh
