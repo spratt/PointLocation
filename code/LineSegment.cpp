@@ -13,7 +13,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "LineSegment.hpp"
-#include <sstream>
 
 namespace geometry {
 
@@ -46,12 +45,11 @@ namespace geometry {
     return !operator<(other);
   }
 
-  ostream& operator<<(ostream& o, const LineSegment& ls) {
-    stringstream s;
-    s << "(" << ls.getFirstEndPoint() << ","
-      << ls.getSecondEndPoint() << ")";
-    o << s.str();
-    return o;
+  ostream& operator<<(ostream& os, const LineSegment& ls) {
+    return os << ls.getFirstEndPoint() << " " << ls.getSecondEndPoint();
   }
   
+  istream& operator>>(istream& is, LineSegment& ls) {
+    return is >> ls.first >> ls.second;
+  }
 }

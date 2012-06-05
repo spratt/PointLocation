@@ -30,6 +30,11 @@ namespace geometry {
     os << "(" << p.x << "," << p.y << ")";
     return os;
   }
+
+  istream& operator>>(istream& is, Point2D& p) {
+    is >> p.x >> p.y;
+    return is;
+  }
 }
 namespace std {
   /////////////////////////////////////////////////////////////////////////////

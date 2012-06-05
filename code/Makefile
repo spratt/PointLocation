@@ -48,7 +48,7 @@ BAR = "======================================================================"
 
 TEST_DIR	= test
 
-TEST_PS		= ${TEST_DIR}/test_polygonal_subdivision
+TEST_PS		= 
 
 TESTS	 	= ${TEST_PS}
 
@@ -63,7 +63,7 @@ TESTS	 	= ${TEST_PS}
 #begin actual makefile stuff
 all: ${TESTS}
 
-run: run_tests_mac
+run: run_tests_mac run_test_ps
 
 test: run_tests_mac run_tests
 
@@ -76,6 +76,9 @@ run_tests:	all
 	${foreach test,${TESTS},\
 echo ${BAR};echo ${test};echo ${BAR};\
 cat ${test}_input | ${VALGRIND} ${VGOPS} ./${test};}
+
+run_test_ps:	all
+	${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt
 
 # specify required libraries
 ${TEST_PS}: 	Point2D.o LineSegment.o PolygonalSubdivision.o

@@ -143,28 +143,50 @@ namespace geometry {
   bool operator<(const Point2D& a, const Point2D& b);
 
   /////////////////////////////////////////////////////////////////////////////
+  // 
+  // FUNCTION NAME: operator<<
+  // 
+  // PURPOSE:       Formats a Point2D nicely for an ostream.
+  // 
+  // SECURITY:      public
+  // 
+  // PARAMETERS
+  //   Type/Name:   ostream/os
+  //   Description: An ostream to which to send the Point2D.
+  // 
+  //   Type/Name:   Point2D/p
+  //   Description: The Point2D to format and send.
+  // 
+  // RETURN:        The ostream input.
+  //                This is standard practice for chaining such as:
+  //                cout << "Point: " << point << endl;
+  // 
+  // NOTES:         None.
+  // 
+  /////////////////////////////////////////////////////////////////////////////
+  ostream& operator<<(ostream& os, const Point2D& p);
+
+  /////////////////////////////////////////////////////////////////////////////
   //                                                                         //
-  // FUNCTION NAME: operator<<                                               //
+  // FUNCTION NAME: operator>>                                               //
   //                                                                         //
-  // PURPOSE:       Formats a Point2D nicely for an ostream.                 //
+  // PURPOSE:       Reads in a point from an istream.                        //
   //                                                                         //
   // SECURITY:      public                                                   //
   //                                                                         //
   // PARAMETERS                                                              //
-  //   Type/Name:   ostream/os                                               //
-  //   Description: An os to which to send the Point2D.                      //
+  //   Type/Name:   istream/os                                               //
+  //   Description: An istream from which to read the Point2D.               //
   //                                                                         //
   //   Type/Name:   Point2D/p                                                //
-  //   Description: The Point2D to format and send.                          //
+  //   Description: The Point2D in which to store the read point.            //
   //                                                                         //
-  // RETURN:        The ostream input.                                       //
-  //                This is standard practice for chaining such as:          //
-  //                cout << "Point: " << point << endl;                      //
+  // RETURN:        The istream input.                                       //
   //                                                                         //
   // NOTES:         None.                                                    //
   //                                                                         //
   /////////////////////////////////////////////////////////////////////////////
-  ostream& operator<<(ostream& os, const Point2D& p);
+  istream& operator>>(istream& os, Point2D& p);
 }
 namespace std {
   /////////////////////////////////////////////////////////////////////////////

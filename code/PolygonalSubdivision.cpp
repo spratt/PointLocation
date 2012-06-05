@@ -32,6 +32,14 @@ namespace geometry {
     // polygonal subdivision won't have intersections
   }
 
+  void PolygonalSubdivision::addLineSegment(const LineSegment& ls) {
+    line_segments.push_back(ls);
+    sweep_points.insert(ls.getFirstEndPoint());
+    sweep_points.insert(ls.getSecondEndPoint());
+    // we don't need to sweep at line intersections because a
+    // polygonal subdivision won't have intersections
+  }
+
   void PolygonalSubdivision::addLineSegment(int ax, int ay, int bx, int by) {
     LineSegment a(ax,ay,bx,by);
     addLineSegment(a);
