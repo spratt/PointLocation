@@ -31,6 +31,19 @@ namespace geometry {
   const Point2D& LineSegment::getFirstEndPoint() const { return first; }
   const Point2D& LineSegment::getSecondEndPoint() const { return second; }
 
+  const Point2D& LineSegment::getLeftEndPoint() const {
+    return (first.x < second.x)?first:second;
+  }
+  const Point2D& LineSegment::getRightEndPoint() const {
+    return (first.x > second.x)?first:second;
+  }
+  const Point2D& LineSegment::getTopEndPoint() const {
+    return (first.y > second.y)?first:second;
+  }
+  const Point2D& LineSegment::getBottomEndPoint() const {
+    return (first.y < second.y)?first:second;
+  }
+
   bool LineSegment::operator<(const LineSegment& other) const {
     return ydesc(*this,other);
   }
