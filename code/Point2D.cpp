@@ -27,7 +27,7 @@ namespace geometry {
   }
   
   ostream& operator<<(ostream& os, const Point2D& p) {
-    os << "(" << p.x << "," << p.y << ")";
+    os << p.x << " " << p.y;
     return os;
   }
 

@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
   }
 
   // ready the structure for queries
-  // TODO
+  ps.lock();
 
   // locate and print the containing polygon for each point
   while(point_begin != point_end) {

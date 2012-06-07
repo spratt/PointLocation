@@ -39,6 +39,11 @@ namespace geometry {
     bool operator<(const LineSegment&) const;
     bool operator>(const LineSegment&) const;
 
+    static bool ydesc(const LineSegment&,const LineSegment&);
+    static bool yasc(const LineSegment&,const LineSegment&);
+    static bool xdesc(const LineSegment&,const LineSegment&);
+    static bool xasc(const LineSegment&,const LineSegment&);
+
   private:
     Point2D first, second;
   };

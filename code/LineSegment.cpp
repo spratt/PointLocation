@@ -32,17 +32,39 @@ namespace geometry {
   const Point2D& LineSegment::getSecondEndPoint() const { return second; }
 
   bool LineSegment::operator<(const LineSegment& other) const {
-    // sort by y coordinate descending
-    const int max_y       = (first.y > second.y) ?
-      first.y : second.y;
-    const int other_max_y = (other.first.y > other.second.y) ?
-      other.first.y : other.second.y;
-    // this precedes other iff this segment's y is higher
-    return max_y > other_max_y;
+    return ydesc(*this,other);
   }
 
   bool LineSegment::operator>(const LineSegment& other) const {
-    return !operator<(other);
+    return yasc(*this,other);
+  }
+
+  bool LineSegment::ydesc(const LineSegment& first, const LineSegment& other) {
+    // sort by y coordinate descending
+    const int max_y       = (first.first.y > first.second.y) ?
+      first.first.y : first.second.y;
+    const int other_max_y = (other.first.y > other.second.y) ?
+      other.first.y : other.second.y;
+    // first precedes other iff first segment's y is higher
+    return max_y > other_max_y;
+  }
+
+  bool LineSegment::yasc(const LineSegment& first, const LineSegment& other) {
+    return !ydesc(first,other);
+  }
+  
+  bool LineSegment::xdesc(const LineSegment& first, const LineSegment& other) {
+    // sort by x coordinate descending
+    const int max_x       = (first.first.x > first.second.x) ?
+      first.first.x : first.second.x;
+    const int other_max_x = (other.first.x > other.second.x) ?
+      other.first.x : other.second.x;
+    // first precedes other iff first segment's x is higher
+    return max_x > other_max_x;
+  }
+
+  bool LineSegment::xasc(const LineSegment& first, const LineSegment& other) {
+    return !xdesc(first,other);
   }
 
   ostream& operator<<(ostream& os, const LineSegment& ls) {

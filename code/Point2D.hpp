@@ -81,6 +81,10 @@ namespace geometry {
       : x(x), y(y)
     {}
 
+    Point2D(const Point2D& other)
+      : x(other.x), y(other.y)
+    {}
+
     struct yxasc {
       bool operator()(const Point2D& a, const Point2D& b) const {
 	if(a.y == b.y)
@@ -143,26 +147,26 @@ namespace geometry {
   bool operator<(const Point2D& a, const Point2D& b);
 
   /////////////////////////////////////////////////////////////////////////////
-  // 
-  // FUNCTION NAME: operator<<
-  // 
-  // PURPOSE:       Formats a Point2D nicely for an ostream.
-  // 
-  // SECURITY:      public
-  // 
-  // PARAMETERS
-  //   Type/Name:   ostream/os
-  //   Description: An ostream to which to send the Point2D.
-  // 
-  //   Type/Name:   Point2D/p
-  //   Description: The Point2D to format and send.
-  // 
-  // RETURN:        The ostream input.
-  //                This is standard practice for chaining such as:
-  //                cout << "Point: " << point << endl;
-  // 
-  // NOTES:         None.
-  // 
+  //                                                                         //
+  // FUNCTION NAME: operator<<                                               //
+  //                                                                         //
+  // PURPOSE:       Formats a Point2D nicely for an ostream.                 //
+  //                                                                         //
+  // SECURITY:      public                                                   //
+  //                                                                         //
+  // PARAMETERS                                                              //
+  //   Type/Name:   ostream/os                                               //
+  //   Description: An ostream to which to send the Point2D.                 //
+  //                                                                         //
+  //   Type/Name:   Point2D/p                                                //
+  //   Description: The Point2D to format and send.                          //
+  //                                                                         //
+  // RETURN:        The ostream input.                                       //
+  //                This is standard practice for chaining such as:          //
+  //                cout << "Point: " << point << endl;                      //
+  //                                                                         //
+  // NOTES:         None.                                                    //
+  //                                                                         //
   /////////////////////////////////////////////////////////////////////////////
   ostream& operator<<(ostream& os, const Point2D& p);
 

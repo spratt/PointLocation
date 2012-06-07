@@ -48,9 +48,9 @@ BAR = "======================================================================"
 
 TEST_DIR	= test
 
-TEST_PS		= 
+TEST_PS		= ${TEST_DIR}/test_polygonal_subdivision
 
-TESTS	 	= ${TEST_PS}
+TESTS	 	= 
 
 .PHONY:	all run run_tests_mac run_tests clean lines
 
@@ -72,12 +72,12 @@ run_tests_mac:	all
 echo ${BAR};echo "| " ${test};echo ${BAR};\
 cat ${test}_input | ./${test};}
 
-run_tests:	all	
+run_tests:	
 	${foreach test,${TESTS},\
 echo ${BAR};echo ${test};echo ${BAR};\
 cat ${test}_input | ${VALGRIND} ${VGOPS} ./${test};}
 
-run_test_ps:	all
+run_test_ps:	${TEST_PS}
 	${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt
 
 # specify required libraries

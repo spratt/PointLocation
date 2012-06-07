@@ -32,19 +32,20 @@ using namespace std;
 
 namespace geometry {
   class PolygonalSubdivision {
-  private:
-    vector< LineSegment > line_segments;
-    set< Point2D > sweep_points;
- 
   public:
     PolygonalSubdivision();
     ~PolygonalSubdivision();
 
     void addLineSegment(LineSegment&);
     void addLineSegment(const LineSegment&);
-    void addLineSegment(int ax, int ay, int bx, int by);
-    
+
+    void lock();
     LineSegment& locate_point(Point2D&);
+    
+  private:
+    vector< LineSegment > line_segments;
+    set< Point2D > sweep_points;
+    bool _locked;
   };
 }
 
