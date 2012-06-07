@@ -52,10 +52,10 @@ int main(int argc, char** argv) {
   ps.lock();
 
   // locate and print the containing polygon for each point
-  while(point_begin != point_end) {
-    cout << *point_begin << endl;
-    ++point_begin;
-  }
+  // while(point_begin != point_end) {
+  //   cout << *point_begin << endl;
+  //   ++point_begin;
+  // }
   
   return 0;
 }

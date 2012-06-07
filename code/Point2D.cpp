@@ -22,8 +22,16 @@ namespace geometry {
     return a.x > b.x;
   }
 
+  bool operator>=(const Point2D& a, const Point2D& b) {
+    return !(operator<(a,b));
+  }
+
   bool operator<(const Point2D& a, const Point2D& b) {
     return a.x < b.x;
+  }
+
+  bool operator<=(const Point2D& a, const Point2D& b) {
+    return !(operator>(a,b));
   }
   
   ostream& operator<<(ostream& os, const Point2D& p) {

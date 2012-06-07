@@ -123,6 +123,7 @@ namespace geometry {
   //                                                                         //
   /////////////////////////////////////////////////////////////////////////////
   bool operator>(const Point2D& a, const Point2D& b);
+  bool operator>=(const Point2D& a, const Point2D& b);
 
   /////////////////////////////////////////////////////////////////////////////
   //                                                                         //
@@ -145,6 +146,7 @@ namespace geometry {
   //                                                                         //
   /////////////////////////////////////////////////////////////////////////////
   bool operator<(const Point2D& a, const Point2D& b);
+  bool operator<=(const Point2D& a, const Point2D& b);
 
   /////////////////////////////////////////////////////////////////////////////
   //                                                                         //

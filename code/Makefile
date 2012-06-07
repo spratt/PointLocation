@@ -78,7 +78,8 @@ echo ${BAR};echo ${test};echo ${BAR};\
 cat ${test}_input | ${VALGRIND} ${VGOPS} ./${test};}
 
 run_test_ps:	${TEST_PS}
-	${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt
+	time ${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt
+	@notify-send "Point Location" "Test done."
 
 # specify required libraries
 ${TEST_PS}: 	Point2D.o LineSegment.o PolygonalSubdivision.o

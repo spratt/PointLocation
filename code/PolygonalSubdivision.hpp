@@ -27,8 +27,10 @@
 #include <set>
 #include "Point2D.hpp"
 #include "LineSegment.hpp"
+#include "lib/PersistentSkipList/PersistentSkipList.hpp"
 
 using namespace std;
+using persistent_skip_list::PersistentSkipList;
 
 namespace geometry {
   class PolygonalSubdivision {
@@ -45,6 +47,8 @@ namespace geometry {
   private:
     vector< LineSegment > line_segments;
     set< Point2D > sweep_points;
+    PersistentSkipList< LineSegment > psl;
+    
     bool _locked;
   };
 }

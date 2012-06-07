@@ -15,6 +15,10 @@
 #include "PolygonalSubdivision.hpp"
 #include <algorithm>
 
+// DEBUG
+#include <iostream>
+using namespace std;
+
 namespace geometry {
 
   PolygonalSubdivision::PolygonalSubdivision()
@@ -63,7 +67,29 @@ namespace geometry {
     // All line segments in the structure whose right most end points
     // lie on the sweep point should be removed from the structure
     ///////////////////////////////////////////////////////////////////////////
-    sort(line_segments.begin(),line_segments.end(),LineSegment::xasc);
+    sort(line_segments.begin(),line_segments.end(),LineSegment::xdesc);
+
+    for(set<Point2D>::iterator point = sweep_points.begin();
+	point != sweep_points.end();
+	++point) {
+      // add points whose left end points are on the sweep line
+      {
+	LineSegment& line = line_segments.back();
+	while(line_segments.size() > 0 &&
+	      line.getLeftEndPoint().x <= (*point).x) {
+	  psl.insert(line);
+	  line_segments.pop_back();
+	  line = line_segments.back();
+	}
+      }
+      // remove points whose right end points are on the sweep line
+      for(vector<LineSegment>::iterator line = line_segments.begin();
+	  line != line_segments.end() && line->getRightEndPoint().x <= (*point).x;
+	  ++line) {
+	// remove *line
+      }
+      psl.incTime();
+    }
   }
   LineSegment& PolygonalSubdivision::locate_point(Point2D& p) {
     // basic error checking
