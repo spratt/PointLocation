@@ -83,10 +83,13 @@ namespace geometry {
 	}
       }
       // remove points whose right end points are on the sweep line
-      for(vector<LineSegment>::iterator line = line_segments.begin();
-	  line != line_segments.end() && line->getRightEndPoint().x <= (*point).x;
-	  ++line) {
-	// remove *line
+      int present = psl.getPresent();
+      PSLIterator<LineSegment> line = psl.begin(present);
+      while(line != psl.end(present)) {
+	if((*line).getRightEndPoint().x == (*point).x)
+	  line.remove();
+	else
+	  ++line;
       }
       psl.incTime();
     }

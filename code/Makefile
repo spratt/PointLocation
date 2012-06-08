@@ -61,7 +61,7 @@ TESTS	 	=
 .SILENT: run_tests run_tests_mac
 
 #begin actual makefile stuff
-all: ${TESTS}
+all: ${TESTS} ${TEST_PS}
 
 run: run_tests_mac run_test_ps
 
