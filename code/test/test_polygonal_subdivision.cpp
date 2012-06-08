@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <iterator>
+#include <ctime>
 #include "../Point2D.hpp"
 #include "../LineSegment.hpp"
 #include "../PolygonalSubdivision.hpp"
@@ -29,7 +30,8 @@ int main(int argc, char** argv) {
 	 << "\t and   [points file]   is a file containing query points" << endl;
     return 0;
   }
-
+  time_t start = time(0);
+  time_t last = start;
   // for segment input
   ifstream segment_file(argv[1]);
   istream_iterator<LineSegment> segment_begin(segment_file);
@@ -47,15 +49,30 @@ int main(int argc, char** argv) {
     ps.addLineSegment(*segment_begin);
     ++segment_begin;
   }
-
   // ready the structure for queries
   ps.lock();
 
+  time_t now = time(0);
+  cout << "Build took: " << difftime(now,last) << endl;
+  last = now;
+
   // locate and print the containing polygon for each point
-  // while(point_begin != point_end) {
-  //   cout << *point_begin << endl;
-  //   ++point_begin;
-  // }
+  while(point_begin != point_end) {
+    try{
+      cout << ps.locate_point(*point_begin) << endl;
+    }catch(char const* str) {
+      cout << "=== ERROR === " << str << endl;
+      return 1;
+    }
+    ++point_begin;
+  }
+
+  now = time(0);
+  cout << "Queries took: " << difftime(now,last) << endl;
+  cout << "Total time: " << difftime(now,start) << endl;
+  last = now;
+
+  
   
   return 0;
 }

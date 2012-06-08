@@ -42,11 +42,12 @@ namespace geometry {
     void addLineSegment(const LineSegment&);
 
     void lock();
-    LineSegment& locate_point(Point2D&);
+    const LineSegment locate_point(const Point2D&);
     
   private:
     vector< LineSegment > line_segments;
-    set< Point2D > sweep_points;
+    set< Point2D > points;
+    vector< Point2D > sweep_points;
     PersistentSkipList< LineSegment > psl;
     
     bool _locked;

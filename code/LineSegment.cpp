@@ -25,6 +25,11 @@ namespace geometry {
     : first(a), second(b)
   {
   }
+  
+  LineSegment::LineSegment(const Point2D& a, const Point2D& b)
+    : first(a), second(b)
+  {
+  }
 
   LineSegment::~LineSegment() {}
 

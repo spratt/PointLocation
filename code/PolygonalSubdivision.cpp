@@ -22,7 +22,7 @@ using namespace std;
 namespace geometry {
 
   PolygonalSubdivision::PolygonalSubdivision()
-    : line_segments(), sweep_points(), _locked(false)
+    : line_segments(), points(), sweep_points(), psl(), _locked(false)
   {
   }
 
@@ -31,16 +31,16 @@ namespace geometry {
 
   void PolygonalSubdivision::addLineSegment(LineSegment& ls) {
     line_segments.push_back(ls);
-    sweep_points.insert(ls.getFirstEndPoint());
-    sweep_points.insert(ls.getSecondEndPoint());
+    points.insert(ls.getFirstEndPoint());
+    points.insert(ls.getSecondEndPoint());
     // we don't need to sweep at line intersections because a
     // polygonal subdivision won't have intersections
   }
 
   void PolygonalSubdivision::addLineSegment(const LineSegment& ls) {
     line_segments.push_back(ls);
-    sweep_points.insert(ls.getFirstEndPoint());
-    sweep_points.insert(ls.getSecondEndPoint());
+    points.insert(ls.getFirstEndPoint());
+    points.insert(ls.getSecondEndPoint());
     // we don't need to sweep at line intersections because a
     // polygonal subdivision won't have intersections
   }
@@ -69,8 +69,8 @@ namespace geometry {
     ///////////////////////////////////////////////////////////////////////////
     sort(line_segments.begin(),line_segments.end(),LineSegment::xdesc);
 
-    for(set<Point2D>::iterator point = sweep_points.begin();
-	point != sweep_points.end();
+    for(set<Point2D>::iterator point = points.begin();
+	point != points.end();
 	++point) {
       // add points whose left end points are on the sweep line
       {
@@ -92,16 +92,25 @@ namespace geometry {
 	  ++line;
       }
       psl.incTime();
+      sweep_points.push_back(*point);
     }
   }
-  LineSegment& PolygonalSubdivision::locate_point(Point2D& p) {
+  const LineSegment PolygonalSubdivision::locate_point(const Point2D& p) {
     // basic error checking
     if(!_locked)
       throw "PolygonalSubdivision must be locked before use";
-    if(line_segments.empty())
+    if(psl.empty(0))
       throw "No line segments";
+
+    int index = int(lower_bound(sweep_points.begin(),
+				sweep_points.end(),
+				p)
+		    - sweep_points.begin());
+
+    if(p.x != (sweep_points[index]).x && index > 0)
+      --index;
     
-    return line_segments[0];
+    return *(psl.find(LineSegment(p,p),index));
   }
 
 }
