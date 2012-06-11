@@ -3,3 +3,4 @@ code/test/test_polygonal_subdivision
 code/lib/PersistentSkipList/
 code/test/points.txt
 code/test/segments.txt
+code/test/test_linesegments
