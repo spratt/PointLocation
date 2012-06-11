@@ -50,9 +50,11 @@ DATA_DIR	= /home2bak/spratt/Projects/CGAL_PointLocation
 
 TEST_DIR	= test
 
+TEST_LS		= ${TEST_DIR}/test_linesegments
+
 TEST_PS		= ${TEST_DIR}/test_polygonal_subdivision
 
-TESTS	 	= 
+TESTS	 	= ${TEST_LS}
 
 .PHONY:	all run run_tests_mac run_tests clean lines
 
@@ -85,7 +87,10 @@ run_test_ps:	${TEST_PS}
 	time ${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt
 
 # specify required libraries
-${TEST_PS}: 	Point2D.o LineSegment.o PolygonalSubdivision.o
+${TEST_LS}:	Point2D.o LineSegment.o lib/PersistentSkipList/PersistentSkipList.o
+
+${TEST_PS}: 	Point2D.o LineSegment.o PolygonalSubdivision.o \
+		lib/PersistentSkipList/PersistentSkipList.o
 
 # tidy up generated files
 clean:
