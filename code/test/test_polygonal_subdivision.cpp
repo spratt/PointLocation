@@ -59,7 +59,8 @@ int main(int argc, char** argv) {
   // locate and print the containing polygon for each point
   while(point_begin != point_end) {
     try{
-      cout << ps.locate_point(*point_begin) << endl;
+      cout << "Point " << *point_begin << ": "
+	   << ps.locate_point(*point_begin) << endl;
     }catch(char const* str) {
       cout << "=== ERROR === " << str << endl;
       return 1;
