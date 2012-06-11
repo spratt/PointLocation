@@ -46,6 +46,8 @@ BAR = "======================================================================"
 # Project specific options                                                    #
 ###############################################################################
 
+DATA_DIR	= /home2bak/spratt/Projects/CGAL_PointLocation
+
 TEST_DIR	= test
 
 TEST_PS		= ${TEST_DIR}/test_polygonal_subdivision
@@ -78,6 +80,8 @@ echo ${BAR};echo ${test};echo ${BAR};\
 cat ${test}_input | ${VALGRIND} ${VGOPS} ./${test};}
 
 run_test_ps:	${TEST_PS}
+	cp ${DATA_DIR}/points.txt ${TEST_DIR}/points.txt
+	cp ${DATA_DIR}/segments.txt ${TEST_DIR}/segments.txt
 	time ${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt
 
 # specify required libraries
