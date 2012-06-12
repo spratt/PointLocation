@@ -85,6 +85,16 @@ namespace geometry {
       : x(other.x), y(other.y)
     {}
 
+    Point2D operator-(const Point2D& other) const;
+
+    static coord_t crossProduct(const Point2D& a, const Point2D& b);
+
+    static bool leftTurn(const Point2D& a, const Point2D& b, const Point2D& c);
+
+    static bool rightTurn(const Point2D& a, const Point2D& b, const Point2D& c);
+
+    static bool colinear(const Point2D& a, const Point2D& b, const Point2D& c);
+    
     struct yxasc {
       bool operator()(const Point2D& a, const Point2D& b) const {
 	if(a.y == b.y)
@@ -147,6 +157,8 @@ namespace geometry {
   /////////////////////////////////////////////////////////////////////////////
   bool operator<(const Point2D& a, const Point2D& b);
   bool operator<=(const Point2D& a, const Point2D& b);
+
+  bool operator==(const Point2D& a, const Point2D& b);
 
   /////////////////////////////////////////////////////////////////////////////
   //                                                                         //

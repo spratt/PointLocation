@@ -14,6 +14,10 @@
 
 #include "LineSegment.hpp"
 
+// DEBUG
+#include <iostream>
+using namespace std;
+
 namespace geometry {
 
   LineSegment::LineSegment(int ax, int ay, int bx, int by)
@@ -57,32 +61,50 @@ namespace geometry {
     return yasc(*this,other);
   }
 
+  // returns true if first belongs before other in ascending order of y
   bool LineSegment::ydesc(const LineSegment& first, const LineSegment& other) {
-    // sort by y coordinate descending
-    const int max_y       = (first.first.y > first.second.y) ?
-      first.first.y : first.second.y;
-    const int other_max_y = (other.first.y > other.second.y) ?
-      other.first.y : other.second.y;
-    // first precedes other iff first segment's y is higher
-    return max_y > other_max_y;
+    bool firstIsPoint = first.getFirstEndPoint() == first.getSecondEndPoint();
+    bool otherIsPoint = other.getFirstEndPoint() == other.getSecondEndPoint();
+    if((firstIsPoint && otherIsPoint) || ((!firstIsPoint) && (!otherIsPoint)))
+      // simply compare y coordinates
+      return (first.getFirstEndPoint().y > other.getFirstEndPoint().y)
+	|| (first.getSecondEndPoint().y > other.getSecondEndPoint().y);
+    else if(firstIsPoint)
+      return Point2D::leftTurn(other.getLeftEndPoint(),
+			       other.getRightEndPoint(),
+			       first.getFirstEndPoint());
+    else if(otherIsPoint)
+      return Point2D::rightTurn(first.getLeftEndPoint(),
+			       first.getRightEndPoint(),
+			       other.getFirstEndPoint());
+    throw "Boolean logic has failed!  ABORT!";
   }
 
   bool LineSegment::yasc(const LineSegment& first, const LineSegment& other) {
-    return !ydesc(first,other);
+    bool firstIsPoint = first.getFirstEndPoint() == first.getSecondEndPoint();
+    bool otherIsPoint = other.getFirstEndPoint() == other.getSecondEndPoint();
+    if((firstIsPoint && otherIsPoint) || ((!firstIsPoint) && (!otherIsPoint))) {
+      // simply compare y coordinates
+      return (first.getFirstEndPoint().y < other.getFirstEndPoint().y)
+	|| (first.getSecondEndPoint().y < other.getSecondEndPoint().y);
+    } else if(firstIsPoint) {
+      return Point2D::rightTurn(other.getLeftEndPoint(),
+			       other.getRightEndPoint(),
+			       first.getFirstEndPoint());
+    } else if(otherIsPoint) {
+      return Point2D::leftTurn(first.getLeftEndPoint(),
+				first.getRightEndPoint(),
+				other.getFirstEndPoint());
+    }
+    throw "Boolean logic has failed!  ABORT!";
   }
   
   bool LineSegment::xdesc(const LineSegment& first, const LineSegment& other) {
-    // sort by x coordinate descending
-    const int max_x       = (first.first.x > first.second.x) ?
-      first.first.x : first.second.x;
-    const int other_max_x = (other.first.x > other.second.x) ?
-      other.first.x : other.second.x;
-    // first precedes other iff first segment's x is higher
-    return max_x > other_max_x;
+    return (first.getTopEndPoint() > other.getTopEndPoint());
   }
 
   bool LineSegment::xasc(const LineSegment& first, const LineSegment& other) {
-    return !xdesc(first,other);
+    return (first.getTopEndPoint() < other.getTopEndPoint());
   }
 
   ostream& operator<<(ostream& os, const LineSegment& ls) {
@@ -91,5 +113,10 @@ namespace geometry {
   
   istream& operator>>(istream& is, LineSegment& ls) {
     return is >> ls.first >> ls.second;
+  }
+
+  bool LineSegment::operator==(const LineSegment& other) const {
+    return ((first == other.first) && (second == other.second))
+      || ((first == other.second) && (second == other.first));
   }
 }

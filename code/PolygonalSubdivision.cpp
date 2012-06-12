@@ -1,7 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
-//                       Copyright (c) 2011 - 2012 by                        //
-//                                Simon Pratt                                //
-//                           (All rights reserved)                           //
+
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
 // FILE:    PolygonalSubdivision.cpp                                         //
@@ -22,7 +19,12 @@ using namespace std;
 namespace geometry {
 
   PolygonalSubdivision::PolygonalSubdivision()
-    : line_segments(), points(), sweep_points(), psl(), _locked(false)
+    : line_segments_left(),
+      line_segments_right(),
+      points(),
+      sweep_points(),
+      psl(),
+      _locked(false)
   {
   }
 
@@ -30,7 +32,8 @@ namespace geometry {
   }
 
   void PolygonalSubdivision::addLineSegment(LineSegment& ls) {
-    line_segments.push_back(ls);
+    line_segments_left.push_back(ls);
+    line_segments_right.push_back(ls);
     points.insert(ls.getFirstEndPoint());
     points.insert(ls.getSecondEndPoint());
     // we don't need to sweep at line intersections because a
@@ -38,11 +41,20 @@ namespace geometry {
   }
 
   void PolygonalSubdivision::addLineSegment(const LineSegment& ls) {
-    line_segments.push_back(ls);
+    line_segments_left.push_back(ls);
+    line_segments_right.push_back(ls);
     points.insert(ls.getFirstEndPoint());
     points.insert(ls.getSecondEndPoint());
     // we don't need to sweep at line intersections because a
     // polygonal subdivision won't have intersections
+  }
+
+  bool leftDescX(const LineSegment& a, const LineSegment& b) {
+    return a.getLeftEndPoint().x > b.getLeftEndPoint().x;
+  }
+
+  bool rightDescX(const LineSegment& a, const LineSegment& b) {
+    return a.getRightEndPoint().x > b.getRightEndPoint().x;
   }
 
   void PolygonalSubdivision::lock() {
@@ -67,19 +79,20 @@ namespace geometry {
     // All line segments in the structure whose right most end points
     // lie on the sweep point should be removed from the structure
     ///////////////////////////////////////////////////////////////////////////
-    sort(line_segments.begin(),line_segments.end(),LineSegment::xdesc);
+    sort(line_segments_left.begin(),line_segments_left.end(),leftDescX);
+    sort(line_segments_right.begin(),line_segments_right.end(),rightDescX);
 
     for(set<Point2D>::iterator point = points.begin();
 	point != points.end();
 	++point) {
       // add points whose left end points are on the sweep line
       {
-	LineSegment& line = line_segments.back();
-	while(line_segments.size() > 0 &&
+	LineSegment& line = line_segments_left.back();
+	while(line_segments_left.size() > 0 &&
 	      line.getLeftEndPoint().x <= (*point).x) {
 	  psl.insert(line);
-	  line_segments.pop_back();
-	  line = line_segments.back();
+	  line_segments_left.pop_back();
+	  line = line_segments_left.back();
 	}
       }
       // remove points whose right end points are on the sweep line
@@ -95,22 +108,48 @@ namespace geometry {
       sweep_points.push_back(*point);
     }
   }
-  const LineSegment PolygonalSubdivision::locate_point(const Point2D& p) {
+  
+  QueryResult PolygonalSubdivision::locate_point(const Point2D& p) {
     // basic error checking
     if(!_locked)
       throw "PolygonalSubdivision must be locked before use";
     if(psl.empty(0))
       throw "No line segments";
 
-    int index = int(lower_bound(sweep_points.begin(),
-				sweep_points.end(),
-				p)
-		    - sweep_points.begin());
+    unsigned int index = int(lower_bound(sweep_points.begin(),
+					 sweep_points.end(),
+					 p)
+			     - sweep_points.begin());
 
     if(p.x != (sweep_points[index]).x && index > 0)
       --index;
+
+    // DEBUG
+    cout << endl;
+    cout << "===DEBUG=== Index:   " << index << endl;
+    cout << "===DEBUG=== Before:  " << sweep_points[index] << endl;
+    if(sweep_points.size() > index+1)
+      cout << "===DEBUG=== After:   " << sweep_points[index+1] << endl;
+    // END DEBUG
+
+    PSLIterator<LineSegment> it = psl.find(LineSegment(p,p),index);
+    LineSegment above = *it;
+    ++it;
+    LineSegment below = *it;
+
+    // DEBUG
+    cout << "===DEBUG=== Above:   " << above << endl;
+    cout << "===DEBUG=== Below:   " << below << endl;
+    ++it;
+    cout << "===DEBUG=== Below2:  " << *it << endl;
+    ++it;
+    cout << "===DEBUG=== Below3:  " << *it << endl;
+    // END DEBUG
+
+    bool outer = below == LineSegment(0,0,0,0)
+      || above == LineSegment(0,0,0,0);
     
-    return *(psl.find(LineSegment(p,p),index));
+    return QueryResult(above,below,outer);
   }
 
 }

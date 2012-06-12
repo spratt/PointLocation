@@ -50,6 +50,8 @@ namespace geometry {
     static bool xdesc(const LineSegment&,const LineSegment&);
     static bool xasc(const LineSegment&,const LineSegment&);
 
+    bool operator==(const LineSegment&) const;
+
   private:
     Point2D first, second;
   };

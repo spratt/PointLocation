@@ -33,6 +33,18 @@ using namespace std;
 using persistent_skip_list::PersistentSkipList;
 
 namespace geometry {
+
+  class QueryResult {
+  public:
+    bool outer;
+    LineSegment above;
+    LineSegment below;
+
+    QueryResult(LineSegment a, LineSegment b, bool o=false)
+      : outer(o), above(a), below(b)
+    {}
+  };
+  
   class PolygonalSubdivision {
   public:
     PolygonalSubdivision();
@@ -42,16 +54,18 @@ namespace geometry {
     void addLineSegment(const LineSegment&);
 
     void lock();
-    const LineSegment locate_point(const Point2D&);
+    QueryResult locate_point(const Point2D&);
     
   private:
-    vector< LineSegment > line_segments;
+    vector< LineSegment > line_segments_left;
+    vector< LineSegment > line_segments_right;
     set< Point2D > points;
     vector< Point2D > sweep_points;
     PersistentSkipList< LineSegment > psl;
     
     bool _locked;
   };
+  
 }
 
 #endif
