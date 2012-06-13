@@ -65,18 +65,50 @@ namespace geometry {
   bool LineSegment::ydesc(const LineSegment& first, const LineSegment& other) {
     bool firstIsPoint = first.getFirstEndPoint() == first.getSecondEndPoint();
     bool otherIsPoint = other.getFirstEndPoint() == other.getSecondEndPoint();
-    if((firstIsPoint && otherIsPoint) || ((!firstIsPoint) && (!otherIsPoint)))
-      // simply compare y coordinates
-      return (first.getFirstEndPoint().y > other.getFirstEndPoint().y)
-	|| (first.getSecondEndPoint().y > other.getSecondEndPoint().y);
-    else if(firstIsPoint)
+    if((firstIsPoint && otherIsPoint) || ((!firstIsPoint) && (!otherIsPoint))) {
+      bool firstIsAbove =
+	(Point2D::leftTurn(other.getLeftEndPoint(),
+			   other.getRightEndPoint(),
+			   first.getFirstEndPoint())
+	 &&
+	 !(Point2D::rightTurn(other.getLeftEndPoint(),
+			     other.getRightEndPoint(),
+			      first.getSecondEndPoint())))
+	||
+	(Point2D::leftTurn(other.getLeftEndPoint(),
+			   other.getRightEndPoint(),
+			   first.getSecondEndPoint())
+	 &&
+	 !(Point2D::rightTurn(other.getLeftEndPoint(),
+			      other.getRightEndPoint(),
+			      first.getFirstEndPoint())));
+      bool otherIsBelow =
+	(Point2D::rightTurn(first.getLeftEndPoint(),
+			   first.getRightEndPoint(),
+			   other.getFirstEndPoint())
+	&&
+	 !(Point2D::leftTurn(first.getLeftEndPoint(),
+			     first.getRightEndPoint(),
+			     other.getSecondEndPoint())))
+	||
+	(Point2D::rightTurn(first.getLeftEndPoint(),
+			   first.getRightEndPoint(),
+			    other.getSecondEndPoint())
+	 &&
+	 !(Point2D::leftTurn(first.getLeftEndPoint(),
+			     first.getRightEndPoint(),
+			     other.getFirstEndPoint())));
+      return (firstIsAbove || otherIsBelow);
+    } else if(firstIsPoint) {
       return Point2D::leftTurn(other.getLeftEndPoint(),
 			       other.getRightEndPoint(),
 			       first.getFirstEndPoint());
-    else if(otherIsPoint)
+    
+    } else if(otherIsPoint) {
       return Point2D::rightTurn(first.getLeftEndPoint(),
 			       first.getRightEndPoint(),
 			       other.getFirstEndPoint());
+    }
     throw "Boolean logic has failed!  ABORT!";
   }
 
@@ -84,9 +116,39 @@ namespace geometry {
     bool firstIsPoint = first.getFirstEndPoint() == first.getSecondEndPoint();
     bool otherIsPoint = other.getFirstEndPoint() == other.getSecondEndPoint();
     if((firstIsPoint && otherIsPoint) || ((!firstIsPoint) && (!otherIsPoint))) {
-      // simply compare y coordinates
-      return (first.getFirstEndPoint().y < other.getFirstEndPoint().y)
-	|| (first.getSecondEndPoint().y < other.getSecondEndPoint().y);
+      bool firstIsBelow =
+	(Point2D::rightTurn(other.getLeftEndPoint(),
+			    other.getRightEndPoint(),
+			    first.getFirstEndPoint())
+	 &&
+	 !(Point2D::leftTurn(other.getLeftEndPoint(),
+			     other.getRightEndPoint(),
+			     first.getSecondEndPoint())))
+	||
+	(Point2D::rightTurn(other.getLeftEndPoint(),
+			    other.getRightEndPoint(),
+			    first.getSecondEndPoint())
+	 &&
+	 !(Point2D::leftTurn(other.getLeftEndPoint(),
+			     other.getRightEndPoint(),
+			     first.getFirstEndPoint())));
+      bool otherIsAbove =
+	(Point2D::leftTurn(first.getLeftEndPoint(),
+			   first.getRightEndPoint(),
+			   other.getFirstEndPoint())
+	 &&
+	 !(Point2D::rightTurn(first.getLeftEndPoint(),
+			      first.getRightEndPoint(),
+			      other.getSecondEndPoint())))
+	||
+	(Point2D::leftTurn(first.getLeftEndPoint(),
+			   first.getRightEndPoint(),
+			   other.getSecondEndPoint())
+	 &&
+	 !(Point2D::rightTurn(first.getLeftEndPoint(),
+			      first.getRightEndPoint(),
+			      other.getFirstEndPoint())));
+      return (firstIsBelow || otherIsAbove);
     } else if(firstIsPoint) {
       return Point2D::rightTurn(other.getLeftEndPoint(),
 			       other.getRightEndPoint(),

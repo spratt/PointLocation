@@ -123,15 +123,7 @@ namespace geometry {
 
     if(p.x != (sweep_points[index]).x && index > 0)
       --index;
-
-    // DEBUG
-    cout << endl;
-    cout << "===DEBUG=== Index:   " << index << endl;
-    cout << "===DEBUG=== Before:  " << sweep_points[index] << endl;
-    if(sweep_points.size() > index+1)
-      cout << "===DEBUG=== After:   " << sweep_points[index+1] << endl;
-    // END DEBUG
-
+    
     PSLIterator<LineSegment> it = psl.find(LineSegment(p,p),index);
     LineSegment above = *it;
     ++it;
