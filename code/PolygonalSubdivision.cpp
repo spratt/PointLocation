@@ -129,15 +129,6 @@ namespace geometry {
     ++it;
     LineSegment below = *it;
 
-    // DEBUG
-    cout << "===DEBUG=== Above:   " << above << endl;
-    cout << "===DEBUG=== Below:   " << below << endl;
-    ++it;
-    cout << "===DEBUG=== Below2:  " << *it << endl;
-    ++it;
-    cout << "===DEBUG=== Below3:  " << *it << endl;
-    // END DEBUG
-
     bool outer = below == LineSegment(0,0,0,0)
       || above == LineSegment(0,0,0,0);
     
