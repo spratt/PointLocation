@@ -18,7 +18,24 @@ void assert_false(bool b) {
 
 int main(int argc, char** argv) {
   PersistentSkipList<LineSegment> psl;
+  /////////////////////////////////////////////////////////////////////////////
+  // Test intersection calculations                                          //
+  /////////////////////////////////////////////////////////////////////////////
 
+  LineSegment line_a(0,0,2,2);
+  LineSegment line_b(0,2,2,0);
+  IntersectionResult result = line_a.intersection(line_b);
+  cout << "Intersection of " << line_a << " with " << line_b
+       << " gives: " << result.point << endl;
+  
+  assert(result.isParallel == false);
+  assert(result.isCoincident == false);
+  assert(result.isIntersecting == true);
+  assert(result.point == Point2D(1,1));
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Test precedence                                                         //
+  /////////////////////////////////////////////////////////////////////////////
   LineSegment ab(0,0,2,3);
   LineSegment ac(0,0,5,0);
   LineSegment bc(2,3,5,0);

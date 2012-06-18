@@ -27,15 +27,15 @@ namespace geometry {
   }
 
   bool Point2D::leftTurn(const Point2D& a, const Point2D& b, const Point2D& c) {
-    return crossProduct(c-b,b-a) < 0;
+    return crossProduct(c-a,b-a) < 0;
   }
 
   bool Point2D::rightTurn(const Point2D& a, const Point2D& b, const Point2D& c) {
-    return crossProduct(c-b,b-a) > 0;
+    return crossProduct(c-a,b-a) > 0;
   }
 
   bool Point2D::colinear(const Point2D& a, const Point2D& b, const Point2D& c) {
-    return crossProduct(c-b,b-a) == 0;
+    return crossProduct(c-a,b-a) == 0;
   }
     
   

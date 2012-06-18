@@ -84,7 +84,10 @@ cat ${test}_input | ${VALGRIND} ${VGOPS} ./${test};}
 run_test_ps:	${TEST_PS}
 	cp ${DATA_DIR}/points.txt ${TEST_DIR}/points.txt
 	cp ${DATA_DIR}/segments.txt ${TEST_DIR}/segments.txt
-	time ${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt
+	cp ${DATA_DIR}/naive.txt ${TEST_DIR}/naive.txt
+	time ${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt > ${TEST_DIR}/psl.txt
+	diff ${TEST_DIR}/naive.txt ${TEST_DIR}/psl.txt > ${TEST_DIR}/diff.txt
+	less ${TEST_DIR}/diff.txt
 
 # specify required libraries
 ${TEST_LS}:	Point2D.o LineSegment.o lib/PersistentSkipList/PersistentSkipList.o

@@ -26,6 +26,19 @@
 #include <ostream>
 
 namespace geometry {
+
+  struct IntersectionResult {
+    bool isParallel;
+    bool isCoincident;
+    bool isIntersecting;
+    Point2D point;
+    IntersectionResult() :
+      isParallel(false),
+      isCoincident(false),
+      isIntersecting(false)
+    {}
+  };
+  
   class LineSegment {
   public:
     friend istream& operator>>(istream&,LineSegment&);
@@ -41,6 +54,8 @@ namespace geometry {
     const Point2D& getRightEndPoint() const;
     const Point2D& getTopEndPoint() const;
     const Point2D& getBottomEndPoint() const;
+    
+    IntersectionResult intersection(const LineSegment&) const;
 
     bool operator<(const LineSegment&) const;
     bool operator>(const LineSegment&) const;

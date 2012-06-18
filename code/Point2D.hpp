@@ -31,7 +31,7 @@ using namespace std;
 
 namespace geometry {
   // Defines the implementation and precision of coordinates
-  typedef int coord_t;
+  typedef float coord_t;
   
   /////////////////////////////////////////////////////////////////////////////
   // Point2D interface                                                       //

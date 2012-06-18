@@ -25,7 +25,7 @@ using namespace geometry;
 int main(int argc, char** argv) {
   // if not enough parameters provided, print a helpful message and quit
   if(argc < 3) {
-    cout << "usage: " << argv[0] << " [segments file] [points file]" << endl
+    cerr << "usage: " << argv[0] << " [segments file] [points file]" << endl
 	 << "\t where [segments file] is a file containing line segments" << endl
 	 << "\t and   [points file]   is a file containing query points" << endl;
     return 0;
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
   ps.lock();
 
   time_t now = time(0);
-  cout << "Build took: " << difftime(now,last) << endl;
+  cerr << "Build took: " << difftime(now,last) << endl;
   last = now;
 
   // locate and print the containing polygon for each point
@@ -66,18 +66,16 @@ int main(int argc, char** argv) {
       else
 	cout << "(" << result.above << ") (" << result.below << ")" << endl;
     }catch(char const* str) {
-      cout << "=== ERROR === " << str << endl;
+      cerr << "=== ERROR === " << str << endl;
       return 1;
     }
     ++point_begin;
   }
 
   now = time(0);
-  cout << "Queries took: " << difftime(now,last) << endl;
-  cout << "Total time: " << difftime(now,start) << endl;
+  cerr << "Queries took: " << difftime(now,last) << endl;
+  cerr << "Total time: " << difftime(now,start) << endl;
   last = now;
-
-  
   
   return 0;
 }

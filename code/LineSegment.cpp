@@ -53,6 +53,35 @@ namespace geometry {
     return (first.y < second.y)?first:second;
   }
 
+  IntersectionResult LineSegment::intersection(const LineSegment& other) const {
+    ///////////////////////////////////////////////////////////////////////////
+    // From the theory on:                                                   //
+    // http://paulbourke.net/geometry/lineline2d/                            //
+    ///////////////////////////////////////////////////////////////////////////
+    IntersectionResult result;
+    coord_t denom = Point2D::crossProduct(second-first,other.second-other.first);
+    coord_t num_a = Point2D::crossProduct(other.second-other.first,first-other.first);
+    coord_t num_b = Point2D::crossProduct(second-first,first-other.first);
+
+    if(denom == 0) {
+      if(num_a == 0 && num_b == 0)
+	result.isCoincident = true;
+      else
+	result.isParallel = true;
+      return result;
+    }
+
+    coord_t ua = num_a / denom;
+    coord_t ub = num_b / denom;
+
+    if(ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
+      result.point = Point2D(first.x + ua * (second.x - first.x),
+			     first.y + ua * (second.y - first.y));
+      result.isIntersecting = true;
+    }
+    return result;
+  }
+
   bool LineSegment::operator<(const LineSegment& other) const {
     return ydesc(*this,other);
   }

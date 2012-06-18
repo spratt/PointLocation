@@ -33,7 +33,6 @@ namespace geometry {
 
   void PolygonalSubdivision::addLineSegment(LineSegment& ls) {
     line_segments_left.push_back(ls);
-    line_segments_right.push_back(ls);
     points.insert(ls.getFirstEndPoint());
     points.insert(ls.getSecondEndPoint());
     // we don't need to sweep at line intersections because a
@@ -42,7 +41,6 @@ namespace geometry {
 
   void PolygonalSubdivision::addLineSegment(const LineSegment& ls) {
     line_segments_left.push_back(ls);
-    line_segments_right.push_back(ls);
     points.insert(ls.getFirstEndPoint());
     points.insert(ls.getSecondEndPoint());
     // we don't need to sweep at line intersections because a
@@ -80,7 +78,6 @@ namespace geometry {
     // lie on the sweep point should be removed from the structure
     ///////////////////////////////////////////////////////////////////////////
     sort(line_segments_left.begin(),line_segments_left.end(),leftDescX);
-    sort(line_segments_right.begin(),line_segments_right.end(),rightDescX);
 
     for(set<Point2D>::iterator point = points.begin();
 	point != points.end();
@@ -91,18 +88,42 @@ namespace geometry {
 	while(line_segments_left.size() > 0 &&
 	      line.getLeftEndPoint().x <= (*point).x) {
 	  psl.insert(line);
+	  line_segments_right.insert( pair<int,LineSegment>(line.getRightEndPoint().x,
+							    line) );
 	  line_segments_left.pop_back();
 	  line = line_segments_left.back();
 	}
       }
-      // remove points whose right end points are on the sweep line
+      // remove points whose right end points are at most the sweep line
       int present = psl.getPresent();
-      PSLIterator<LineSegment> line = psl.begin(present);
-      while(line != psl.end(present)) {
-	if((*line).getRightEndPoint().x == (*point).x)
-	  line.remove();
-	else
-	  ++line;
+      {
+	//////////////////////////////////////////////////////////////////////////////
+	// DEBUG DEBUG Print current state of psl                                   //
+	//////////////////////////////////////////////////////////////////////////////
+
+	PSLIterator<LineSegment> it = psl.begin(present);
+	cout << "PSL(" << present << "): " << *it;
+	while(++it != psl.end(present)) {
+	  cout << ", " << *it;
+	}
+	cout << endl;
+	//////////////////////////////////////////////////////////////////////////////
+	// DEBUG DEBUG                                                              //
+	//////////////////////////////////////////////////////////////////////////////
+      }
+      {
+	map<int, LineSegment>::iterator end =
+	  line_segments_right.upper_bound((*point).x);
+	map<int, LineSegment>::iterator it =
+	  line_segments_right.begin();
+	while(it != end) {
+	  cout << "=== DEBUG === " << "searching for " << (*it).second << "...";
+	  psl.find((*it).second,present).remove();
+	  cout << "found." << endl;
+	  line_segments_right.erase(it);	  
+	  it = line_segments_right.begin();
+	  end = line_segments_right.upper_bound((*point).x);
+	}
       }
       psl.incTime();
       sweep_points.push_back(*point);
