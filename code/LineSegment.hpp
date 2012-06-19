@@ -54,6 +54,8 @@ namespace geometry {
     const Point2D& getRightEndPoint() const;
     const Point2D& getTopEndPoint() const;
     const Point2D& getBottomEndPoint() const;
+
+    const bool isVertical() const;
     
     IntersectionResult intersection(const LineSegment&) const;
 
@@ -66,6 +68,7 @@ namespace geometry {
     static bool xasc(const LineSegment&,const LineSegment&);
 
     bool operator==(const LineSegment&) const;
+    bool operator!=(const LineSegment&) const;
 
   private:
     Point2D first, second;

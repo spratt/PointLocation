@@ -82,6 +82,9 @@ echo ${BAR};echo ${test};echo ${BAR};\
 cat ${test}_input | ${VALGRIND} ${VGOPS} ./${test};}
 
 run_test_ps:	${TEST_PS}
+	@echo ${BAR}
+	@echo run_test_ps
+	@echo ${BAR};
 	cp ${DATA_DIR}/points.txt ${TEST_DIR}/points.txt
 	cp ${DATA_DIR}/segments.txt ${TEST_DIR}/segments.txt
 	cp ${DATA_DIR}/naive.txt ${TEST_DIR}/naive.txt

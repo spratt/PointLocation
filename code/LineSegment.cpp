@@ -12,6 +12,7 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
 #include "LineSegment.hpp"
 
 // DEBUG
@@ -44,13 +45,17 @@ namespace geometry {
     return (first.x < second.x)?first:second;
   }
   const Point2D& LineSegment::getRightEndPoint() const {
-    return (first.x > second.x)?first:second;
+    return (first.x < second.x)?second:first;
   }
   const Point2D& LineSegment::getTopEndPoint() const {
     return (first.y > second.y)?first:second;
   }
   const Point2D& LineSegment::getBottomEndPoint() const {
-    return (first.y < second.y)?first:second;
+    return (first.y > second.y)?second:first;
+  }
+
+  const bool LineSegment::isVertical() const {
+    return first.x == second.x;
   }
 
   IntersectionResult LineSegment::intersection(const LineSegment& other) const {
@@ -83,84 +88,122 @@ namespace geometry {
   }
 
   bool LineSegment::operator<(const LineSegment& other) const {
-    return ydesc(*this,other);
+    // first sort by y
+    if(ydesc(*this,other)) return true;
+    if(yasc(*this,other)) return false;
+    // otherwise, sort by x
+    if(xdesc(*this,other)) return true;
+    if(xasc(*this,other)) return false;
+    // otherwise must be equal?
+    return false;
   }
 
   bool LineSegment::operator>(const LineSegment& other) const {
-    return yasc(*this,other);
+    return !((*this) == other) && !((*this) < other);
   }
 
   // returns true if first belongs before other in ascending order of y
-  bool LineSegment::ydesc(const LineSegment& first, const LineSegment& other) {
-    bool firstIsAbove =
-      (Point2D::leftTurn(other.getLeftEndPoint(),
-			 other.getRightEndPoint(),
-			 first.getFirstEndPoint())
+  bool LineSegment::ydesc(const LineSegment& a, const LineSegment& b) {
+    if(a == b) return false;
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Point Cases                                                           //
+    ///////////////////////////////////////////////////////////////////////////
+    bool a_is_point = a.getFirstEndPoint() == a.getSecondEndPoint();
+    bool b_is_point = b.getFirstEndPoint() == b.getSecondEndPoint();
+    if(a_is_point && b_is_point)
+      return
+	(a.getFirstEndPoint().y > b.getFirstEndPoint().y) ||
+	(a.getFirstEndPoint().y == b.getFirstEndPoint().y &&
+	 a.getFirstEndPoint().x > b.getFirstEndPoint().x);
+    if(a_is_point)
+      return Point2D::leftTurn(b.getLeftEndPoint(),
+			       b.getRightEndPoint(),
+			       a.getFirstEndPoint());
+    if(b_is_point)
+      return Point2D::rightTurn(a.getLeftEndPoint(),
+				a.getRightEndPoint(),
+				b.getFirstEndPoint());
+    
+    bool shared_left_end_point =
+      a.getLeftEndPoint() == b.getLeftEndPoint();
+    bool shared_right_end_point =
+      a.getRightEndPoint() == b.getRightEndPoint();
+    bool a_right_b_left =
+      a.getRightEndPoint() == b.getLeftEndPoint();
+    bool a_left_b_right =
+      a.getLeftEndPoint() == b.getRightEndPoint();
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Vertical Cases                                                        //
+    ///////////////////////////////////////////////////////////////////////////
+    if(a.isVertical() && b.isVertical())
+      return a.getTopEndPoint().y > b.getTopEndPoint().y;
+
+    if(a.isVertical()) {
+      if(shared_left_end_point ||
+	 shared_right_end_point ||
+	 a_right_b_left ||
+	 a_left_b_right)
+	return
+	  (a.getBottomEndPoint() == b.getLeftEndPoint()) ||
+	  (a.getBottomEndPoint() == b.getRightEndPoint());
+    }
+    if(b.isVertical()) {
+      if(shared_left_end_point ||
+	 shared_right_end_point ||
+	 a_right_b_left ||
+	 a_left_b_right)
+	return
+	  (b.getTopEndPoint() == a.getLeftEndPoint()) ||
+	  (b.getTopEndPoint() == a.getRightEndPoint());
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Shared End Point Cases                                                //
+    ///////////////////////////////////////////////////////////////////////////
+    if(shared_left_end_point)
+      return Point2D::leftTurn(a.getRightEndPoint(),
+			       a.getLeftEndPoint(),
+			       b.getRightEndPoint());
+    if(shared_right_end_point)
+      return Point2D::rightTurn(a.getLeftEndPoint(),
+				a.getRightEndPoint(),
+				b.getLeftEndPoint());
+    if(a_right_b_left)
+      return
+	(a.getLeftEndPoint().y > b.getRightEndPoint().y) ||
+	(a.getLeftEndPoint().y == b.getRightEndPoint().y &&
+	 a.getLeftEndPoint().x > b.getRightEndPoint().x);
+    if(a_left_b_right)
+      return
+	(a.getRightEndPoint().y > b.getLeftEndPoint().y) ||
+	(a.getRightEndPoint().y == b.getLeftEndPoint().y &&
+	 a.getRightEndPoint().x > b.getLeftEndPoint().x);
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Basic Cases                                                           //
+    ///////////////////////////////////////////////////////////////////////////
+    return
+      (Point2D::rightTurn(a.getLeftEndPoint(),
+			  a.getRightEndPoint(),
+			  b.getFirstEndPoint())
        &&
-       !(Point2D::rightTurn(other.getLeftEndPoint(),
-			    other.getRightEndPoint(),
-			    first.getSecondEndPoint())))
+       Point2D::rightTurn(a.getLeftEndPoint(),
+			  a.getRightEndPoint(),
+			  b.getSecondEndPoint()))
       ||
-      (Point2D::leftTurn(other.getLeftEndPoint(),
-			 other.getRightEndPoint(),
-			 first.getSecondEndPoint())
+      (Point2D::leftTurn(b.getLeftEndPoint(),
+			 b.getRightEndPoint(),
+			 a.getFirstEndPoint())
        &&
-       !(Point2D::rightTurn(other.getLeftEndPoint(),
-			    other.getRightEndPoint(),
-			    first.getFirstEndPoint())));
-    bool otherIsBelow =
-      (Point2D::rightTurn(first.getLeftEndPoint(),
-			  first.getRightEndPoint(),
-			  other.getFirstEndPoint())
-       &&
-       !(Point2D::leftTurn(first.getLeftEndPoint(),
-			   first.getRightEndPoint(),
-			   other.getSecondEndPoint())))
-      ||
-      (Point2D::rightTurn(first.getLeftEndPoint(),
-			  first.getRightEndPoint(),
-			  other.getSecondEndPoint())
-       &&
-       !(Point2D::leftTurn(first.getLeftEndPoint(),
-			   first.getRightEndPoint(),
-			   other.getFirstEndPoint())));
-    return (firstIsAbove || otherIsBelow);
+       Point2D::leftTurn(b.getLeftEndPoint(),
+			 b.getRightEndPoint(),
+			 a.getSecondEndPoint()));
   }
 
-  bool LineSegment::yasc(const LineSegment& first, const LineSegment& other) {
-    bool firstIsBelow =
-      (Point2D::rightTurn(other.getLeftEndPoint(),
-			  other.getRightEndPoint(),
-			  first.getFirstEndPoint())
-       &&
-       !(Point2D::leftTurn(other.getLeftEndPoint(),
-			   other.getRightEndPoint(),
-			   first.getSecondEndPoint())))
-      ||
-      (Point2D::rightTurn(other.getLeftEndPoint(),
-			  other.getRightEndPoint(),
-			  first.getSecondEndPoint())
-       &&
-       !(Point2D::leftTurn(other.getLeftEndPoint(),
-			   other.getRightEndPoint(),
-			   first.getFirstEndPoint())));
-    bool otherIsAbove =
-      (Point2D::leftTurn(first.getLeftEndPoint(),
-			 first.getRightEndPoint(),
-			 other.getFirstEndPoint())
-       &&
-       !(Point2D::rightTurn(first.getLeftEndPoint(),
-			    first.getRightEndPoint(),
-			    other.getSecondEndPoint())))
-      ||
-      (Point2D::leftTurn(first.getLeftEndPoint(),
-			 first.getRightEndPoint(),
-			 other.getSecondEndPoint())
-       &&
-       !(Point2D::rightTurn(first.getLeftEndPoint(),
-			    first.getRightEndPoint(),
-			    other.getFirstEndPoint())));
-    return (firstIsBelow || otherIsAbove);
+  bool LineSegment::yasc(const LineSegment& a, const LineSegment& b) {
+    return a != b && !ydesc(a,b);
   }
   
   bool LineSegment::xdesc(const LineSegment& first, const LineSegment& other) {
@@ -182,5 +225,9 @@ namespace geometry {
   bool LineSegment::operator==(const LineSegment& other) const {
     return ((first == other.first) && (second == other.second))
       || ((first == other.second) && (second == other.first));
+  }
+
+  bool LineSegment::operator!=(const LineSegment& other) const {
+    return !((*this) == other);
   }
 }

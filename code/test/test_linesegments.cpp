@@ -12,10 +12,6 @@ void printBar() {
        << endl;
 }
 
-void assert_false(bool b) {
-  assert(!b);
-}
-
 int main(int argc, char** argv) {
   PersistentSkipList<LineSegment> psl;
   /////////////////////////////////////////////////////////////////////////////
@@ -49,22 +45,28 @@ int main(int argc, char** argv) {
   Point2D q3(4,2);
 
   assert(LineSegment(q0,q0)<ab);
-  assert_false(LineSegment(q0,q0)>ab);
+  assert(!(LineSegment(q0,q0)>ab));
   assert(LineSegment(q1,q1)>ab);
   assert(LineSegment(q1,q1)<ac);
-  assert_false(LineSegment(q1,q1)>ac);
+  assert(!(LineSegment(q1,q1)>ac));
   assert(LineSegment(q2,q2)>bc);
   assert(LineSegment(q2,q2)<ac);
   assert(LineSegment(q3,q3)<bc);
-  assert_false(LineSegment(q2,q2)>ac);
-  assert_false(LineSegment(q3,q3)>bc);
+  assert(!(LineSegment(q2,q2)>ac));
+  assert(!(LineSegment(q3,q3)>bc));
 
-  cout << "Building psl...";
+  cout << "Building psl..." << endl;
+  cout << "\t ...inserting " << ab << endl;
   psl.insert(ab);
+  cout << "\t ...inserting " << ac << endl;
   psl.insert(ac);
   psl.incTime();
   int present = psl.getPresent();
+  cout << "\t ...deleting " << ab << endl;
+  psl.drawPresent();
   psl.find(ab,present).remove();
+  psl.drawPresent();
+  cout << "\t ...inserting " << bc << endl;
   psl.insert(bc);
   cout << "done." << endl;
 

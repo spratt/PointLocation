@@ -87,9 +87,19 @@ namespace geometry {
 	LineSegment& line = line_segments_left.back();
 	while(line_segments_left.size() > 0 &&
 	      line.getLeftEndPoint().x <= (*point).x) {
-	  psl.insert(line);
-	  line_segments_right.insert( pair<int,LineSegment>(line.getRightEndPoint().x,
-							    line) );
+	  try {
+	    psl.insert(line);
+	  } catch(char const* exception) {
+	    cout << "=== EXCEPTION === " << exception << endl
+		 << "=== EXCEPTION === " << line << " already exists" << endl;
+	    psl.drawPresent();
+	    throw "BAILING";
+	  }
+	  if(line_segments_right.count(line.getRightEndPoint().x) == 0) {
+	    line_segments_right[line.getRightEndPoint().x] =
+	      vector<LineSegment>();
+	  }
+	  line_segments_right[line.getRightEndPoint().x].push_back(line);
 	  line_segments_left.pop_back();
 	  line = line_segments_left.back();
 	}
@@ -112,19 +122,22 @@ namespace geometry {
 	//////////////////////////////////////////////////////////////////////////////
       }
       {
-	map<int, LineSegment>::iterator end =
-	  line_segments_right.upper_bound((*point).x);
-	map<int, LineSegment>::iterator it =
-	  line_segments_right.begin();
+	vector<LineSegment>::iterator it =
+	  line_segments_right[(*point).x].begin();
+	vector<LineSegment>::iterator end = 
+	  line_segments_right[(*point).x].end();
 	while(it != end) {
-	  cout << "=== DEBUG === " << "searching for " << (*it).second << "...";
-	  psl.find((*it).second,present).remove();
-	  cout << "found." << endl;
-	  line_segments_right.erase(it);	  
-	  it = line_segments_right.begin();
-	  end = line_segments_right.upper_bound((*point).x);
+	  cout << "=== DEBUG === " << "deleting " << (*it) << "...";
+	  PSLIterator<LineSegment> toRemove = psl.find((*it),present);
+	  assert((*it) == (*toRemove));
+	  toRemove.remove();
+	  cout << "deleted." << endl;
+	  ++it;
 	}
+	line_segments_right.erase((*point).x);
+	cout << "=== DEBUG === " << "done deletions." << endl;
       }
+      
       psl.incTime();
       sweep_points.push_back(*point);
     }
