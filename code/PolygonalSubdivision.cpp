@@ -12,10 +12,6 @@
 #include "PolygonalSubdivision.hpp"
 #include <algorithm>
 
-// DEBUG
-#include <iostream>
-using namespace std;
-
 namespace geometry {
 
   PolygonalSubdivision::PolygonalSubdivision()
@@ -90,10 +86,8 @@ namespace geometry {
 	  try {
 	    psl.insert(line);
 	  } catch(char const* exception) {
-	    cout << "=== EXCEPTION === " << exception << endl
-		 << "=== EXCEPTION === " << line << " already exists" << endl;
 	    psl.drawPresent();
-	    throw "BAILING";
+	    throw "Error while trying to insert line";
 	  }
 	  if(line_segments_right.count(line.getRightEndPoint().x) == 0) {
 	    line_segments_right[line.getRightEndPoint().x] =
@@ -107,35 +101,17 @@ namespace geometry {
       // remove points whose right end points are at most the sweep line
       int present = psl.getPresent();
       {
-	//////////////////////////////////////////////////////////////////////////////
-	// DEBUG DEBUG Print current state of psl                                   //
-	//////////////////////////////////////////////////////////////////////////////
-
-	PSLIterator<LineSegment> it = psl.begin(present);
-	cout << "PSL(" << present << "): " << *it;
-	while(++it != psl.end(present)) {
-	  cout << ", " << *it;
-	}
-	cout << endl;
-	//////////////////////////////////////////////////////////////////////////////
-	// DEBUG DEBUG                                                              //
-	//////////////////////////////////////////////////////////////////////////////
-      }
-      {
 	vector<LineSegment>::iterator it =
 	  line_segments_right[(*point).x].begin();
 	vector<LineSegment>::iterator end = 
 	  line_segments_right[(*point).x].end();
 	while(it != end) {
-	  cout << "=== DEBUG === " << "deleting " << (*it) << "...";
 	  PSLIterator<LineSegment> toRemove = psl.find((*it),present);
 	  assert((*it) == (*toRemove));
 	  toRemove.remove();
-	  cout << "deleted." << endl;
 	  ++it;
 	}
 	line_segments_right.erase((*point).x);
-	cout << "=== DEBUG === " << "done deletions." << endl;
       }
       
       psl.incTime();
