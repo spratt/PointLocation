@@ -17,7 +17,7 @@ namespace geometry {
   PolygonalSubdivision::PolygonalSubdivision()
     : line_segments_left(),
       line_segments_right(),
-      points(),
+      x_coords(),
       sweep_points(),
       psl(),
       _locked(false)
@@ -29,16 +29,16 @@ namespace geometry {
 
   void PolygonalSubdivision::addLineSegment(LineSegment& ls) {
     line_segments_left.push_back(ls);
-    points.insert(ls.getFirstEndPoint());
-    points.insert(ls.getSecondEndPoint());
+    x_coords.insert(ls.getFirstEndPoint().x);
+    x_coords.insert(ls.getSecondEndPoint().x);
     // we don't need to sweep at line intersections because a
     // polygonal subdivision won't have intersections
   }
 
   void PolygonalSubdivision::addLineSegment(const LineSegment& ls) {
     line_segments_left.push_back(ls);
-    points.insert(ls.getFirstEndPoint());
-    points.insert(ls.getSecondEndPoint());
+    x_coords.insert(ls.getFirstEndPoint().x);
+    x_coords.insert(ls.getSecondEndPoint().x);
     // we don't need to sweep at line intersections because a
     // polygonal subdivision won't have intersections
   }
@@ -75,14 +75,23 @@ namespace geometry {
     ///////////////////////////////////////////////////////////////////////////
     sort(line_segments_left.begin(),line_segments_left.end(),leftDescX);
 
-    for(set<Point2D>::iterator point = points.begin();
-	point != points.end();
-	++point) {
+    for(set< coord_t >::iterator coord = x_coords.begin();
+	coord != x_coords.end();
+	++coord) {
       // add points whose left end points are on the sweep line
       {
 	LineSegment& line = line_segments_left.back();
 	while(line_segments_left.size() > 0 &&
-	      line.getLeftEndPoint().x <= (*point).x) {
+	      line.getLeftEndPoint().x <= (*coord)) {
+	  if(line.isVertical()) {
+	    if(vertical_lines.count(line.getFirstEndPoint().x) == 0)
+	      vertical_lines[line.getFirstEndPoint().x] =
+		vector<LineSegment>();
+	    vertical_lines[line.getFirstEndPoint().x].push_back(line);
+	    line_segments_left.pop_back();
+	    line = line_segments_left.back();
+	    continue;
+	  }
 	  try {
 	    psl.insert(line);
 	  } catch(char const* exception) {
@@ -102,20 +111,20 @@ namespace geometry {
       int present = psl.getPresent();
       {
 	vector<LineSegment>::iterator it =
-	  line_segments_right[(*point).x].begin();
+	  line_segments_right[*coord].begin();
 	vector<LineSegment>::iterator end = 
-	  line_segments_right[(*point).x].end();
+	  line_segments_right[*coord].end();
 	while(it != end) {
 	  PSLIterator<LineSegment> toRemove = psl.find((*it),present);
 	  assert((*it) == (*toRemove));
 	  toRemove.remove();
 	  ++it;
 	}
-	line_segments_right.erase((*point).x);
+	line_segments_right.erase(*coord);
       }
       
       psl.incTime();
-      sweep_points.push_back(*point);
+      sweep_points.push_back(*coord);
     }
   }
   
@@ -125,27 +134,77 @@ namespace geometry {
       throw "PolygonalSubdivision must be locked before use";
     if(psl.empty(0))
       throw "No line segments";
-    if(points.count(p) > 0)
-      return QueryResult(LineSegment(0,0),
-			 LineSegment(0,0),
-			 false, // vertex
-			 true);
 
     unsigned int index = int(lower_bound(sweep_points.begin(),
 					 sweep_points.end(),
-					 p)
+					 p.x)
 			     - sweep_points.begin());
 
-    if(p.x != (sweep_points[index]).x && index > 0)
+    if(p.x != sweep_points[index] && index > 0)
       --index;
+
+    // check if left of first sweep line
+    if(index == 0 && p.x < sweep_points[index])
+      return QueryResult(LineSegment(0,0),
+			 LineSegment(0,0),
+			 true); // outer
+
+    LineSegment toFind(p,p);
     
-    PSLIterator<LineSegment> it = psl.find(LineSegment(p,p),index);
+    PSLIterator<LineSegment> it = psl.find(toFind,index);
     LineSegment above = *it;
     ++it;
     LineSegment below = *it;
 
-    bool outer = below == LineSegment(0,0,0,0)
-      || above == LineSegment(0,0,0,0);
+    // check if query point was on sweep line
+    if(p.x == sweep_points[index]) {
+      // check if query point is on a vertical line
+      for(vector<LineSegment>::iterator it = vertical_lines[p.x].begin();
+	  it != vertical_lines[p.x].end();
+	  ++it) {
+	if(p.y < (*it).getTopEndPoint().y && p.y > (*it).getBottomEndPoint().y)
+	  return QueryResult(*it,
+			     *it,
+			     false, // outer
+			     false, // vertex
+			     true); // edge
+      }
+
+      // check if query point is on a vertex
+      if(p == above.getFirstEndPoint() ||
+	 p == above.getSecondEndPoint())
+	return QueryResult(above,
+			   above,
+			   false, // outer
+			   true); // vertex
+      if(p == below.getFirstEndPoint() ||
+	 p == below.getSecondEndPoint())
+	return QueryResult(below,
+			   below,
+			   false, // outer
+			   true); // vertex
+
+      // otherwise, point must be on a face, so proceed normally
+    }
+
+    // check if query point was on the above line
+    if(toFind <= above && toFind >= above) {
+      return QueryResult(above,
+			 above,
+			 false, // outer
+			 false, // vertex
+			 true); // edge
+    } else if(toFind <= below && toFind >= below) {
+      return QueryResult(below,
+			 below,
+			 false, // outer
+			 false, // vertex
+			 true); // edge
+    }
+
+    bool outer =
+	below == LineSegment(0,0,0,0) ||
+	above == LineSegment(0,0,0,0);
     
     return QueryResult(above,below,outer);
   }

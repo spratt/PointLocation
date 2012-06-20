@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
       else if(result.vertex)
 	cout << "Vertex" << endl;
       else if(result.edge)
-	cout << "Halfedge" << endl; // just to match CGAL output
+	cout << "Edge: (" << result.above << ")" << endl;
       else
 	cout << "(" << result.above << ") (" << result.below << ")" << endl;
     }catch(char const* str) {

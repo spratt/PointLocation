@@ -98,8 +98,16 @@ namespace geometry {
     return false;
   }
 
+  bool LineSegment::operator<=(const LineSegment& other) const {
+    return !operator>(other);
+  }
+
   bool LineSegment::operator>(const LineSegment& other) const {
     return !((*this) == other) && !((*this) < other);
+  }
+
+  bool LineSegment::operator>=(const LineSegment& other) const {
+    return !operator<(other);
   }
 
   // returns true if first belongs before other in ascending order of y

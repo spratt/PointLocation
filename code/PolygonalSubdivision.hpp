@@ -68,9 +68,10 @@ namespace geometry {
     
   private:
     vector< LineSegment > line_segments_left;
+    map< coord_t, vector<LineSegment> > vertical_lines;
     map< coord_t, vector<LineSegment> > line_segments_right;
-    set< Point2D > points;
-    vector< Point2D > sweep_points;
+    set< coord_t > x_coords;
+    vector< coord_t > sweep_points;
     PersistentSkipList< LineSegment > psl;
     
     bool _locked;
