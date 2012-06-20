@@ -37,11 +37,21 @@ namespace geometry {
   class QueryResult {
   public:
     bool outer;
+    bool vertex;
+    bool edge;
     LineSegment above;
     LineSegment below;
 
-    QueryResult(LineSegment a, LineSegment b, bool o=false)
-      : outer(o), above(a), below(b)
+    QueryResult(LineSegment a,
+		LineSegment b,
+		bool o=false,
+		bool v=false,
+		bool e=false)
+      : outer(o),
+	vertex(v),
+	edge(e),
+	above(a),
+	below(b)
     {}
   };
   

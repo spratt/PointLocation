@@ -125,6 +125,11 @@ namespace geometry {
       throw "PolygonalSubdivision must be locked before use";
     if(psl.empty(0))
       throw "No line segments";
+    if(points.count(p) > 0)
+      return QueryResult(LineSegment(0,0),
+			 LineSegment(0,0),
+			 false, // vertex
+			 true);
 
     unsigned int index = int(lower_bound(sweep_points.begin(),
 					 sweep_points.end(),

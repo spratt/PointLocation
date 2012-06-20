@@ -63,6 +63,10 @@ int main(int argc, char** argv) {
       QueryResult result = ps.locate_point(*point_begin);
       if(result.outer)
 	cout << "outer" << endl;
+      else if(result.vertex)
+	cout << "Vertex" << endl;
+      else if(result.edge)
+	cout << "Halfedge" << endl; // just to match CGAL output
       else
 	cout << "(" << result.above << ") (" << result.below << ")" << endl;
     }catch(char const* str) {
