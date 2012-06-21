@@ -25,11 +25,13 @@
 
 #include <vector>
 #include <set>
+#include "lib/PersistentSkipList/PersistentSkipList.hpp"
+#include "lib/CppLog/CppLog.hpp"
 #include "Point2D.hpp"
 #include "LineSegment.hpp"
-#include "lib/PersistentSkipList/PersistentSkipList.hpp"
 
 using namespace std;
+using cpplog::CppLog;
 using persistent_skip_list::PersistentSkipList;
 
 namespace geometry {
@@ -75,6 +77,7 @@ namespace geometry {
     PersistentSkipList< LineSegment > psl;
     
     bool _locked;
+    CppLog _log;
   };
   
 }

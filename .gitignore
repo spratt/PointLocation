@@ -7,3 +7,5 @@ code/test/test_linesegments
 code/test/diff.txt
 code/test/naive.txt
 code/test/psl.txt
+code/lib/CppLog/
+code/PolygonalSubdivision_log.txt

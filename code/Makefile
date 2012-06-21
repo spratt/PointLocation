@@ -96,7 +96,8 @@ run_test_ps:	${TEST_PS}
 ${TEST_LS}:	Point2D.o LineSegment.o lib/PersistentSkipList/PersistentSkipList.o
 
 ${TEST_PS}: 	Point2D.o LineSegment.o PolygonalSubdivision.o \
-		lib/PersistentSkipList/PersistentSkipList.o
+		lib/PersistentSkipList/PersistentSkipList.o \
+		lib/CppLog/CppLog.o
 
 # tidy up generated files
 clean:

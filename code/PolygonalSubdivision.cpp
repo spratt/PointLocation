@@ -9,8 +9,9 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "PolygonalSubdivision.hpp"
 #include <algorithm>
+#include "PolygonalSubdivision.hpp"
+#include <iostream>
 
 namespace geometry {
 
@@ -20,8 +21,12 @@ namespace geometry {
       x_coords(),
       sweep_points(),
       psl(),
-      _locked(false)
+      _locked(false),
+      _log(clog,"PolygonalSubdivision_log.txt")
   {
+#ifdef NDEBUG
+    _log.disable();
+#endif
   }
 
   PolygonalSubdivision::~PolygonalSubdivision() {
@@ -116,6 +121,12 @@ namespace geometry {
 	  line_segments_right[*coord].end();
 	while(it != end) {
 	  PSLIterator<LineSegment> toRemove = psl.find((*it),present);
+	  if((*it) != (*toRemove)) {
+	    clog << "=== ERROR ===" << endl
+		 << "Deletion mismatch" << endl
+		 << "Sought: " << (*it) << endl
+		 << "Found:  " << (*toRemove) << endl;
+	  }
 	  assert((*it) == (*toRemove));
 	  toRemove.remove();
 	  ++it;
