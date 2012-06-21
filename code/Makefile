@@ -27,14 +27,13 @@ QUIET_CC	= @echo '    ' CC $@;
 ###############################################################################
 
 CXX = g++
-CXXFLAGS       	= -g -std=c++98 -pedantic-errors -Wall -Werror
 
 VALGRIND	= valgrind
 VGOPS		= --leak-check=full -v --show-reachable=yes
 
 # if mode is release, don't include debug info
 ifeq ($(mode),release)
-	CXXFLAGS=-O2 -Wall
+	CXXFLAGS=-O2 -Wall -DNDEBUG
 else
 	mode = debug
 	CXXFLAGS=-g -std=c++98 -pedantic-errors -Wall -Werror
@@ -56,7 +55,7 @@ TEST_PS		= ${TEST_DIR}/test_polygonal_subdivision
 
 TESTS	 	= ${TEST_LS}
 
-.PHONY:	all run run_tests_mac run_tests clean lines
+.PHONY:	all run run_tests_mac run_tests clean lines get_libs
 
 .IGNORE: lines
 
@@ -65,18 +64,21 @@ TESTS	 	= ${TEST_LS}
 .SILENT: run_tests run_tests_mac
 
 #begin actual makefile stuff
-all: ${TESTS} ${TEST_PS}
+get_libs:
+	cd lib;./get_libs.sh
+
+all: get_libs ${TESTS} ${TEST_PS}
 
 run: run_tests_mac run_test_ps
 
 test: run_tests_mac run_tests
 
-run_tests_mac:	all
+run_tests_mac:	${TESTS}
 	${foreach test,${TESTS},\
 echo ${BAR};echo "| " ${test};echo ${BAR};\
 cat ${test}_input | ./${test};}
 
-run_tests:	
+run_tests:	${TESTS}
 	${foreach test,${TESTS},\
 echo ${BAR};echo ${test};echo ${BAR};\
 cat ${test}_input | ${VALGRIND} ${VGOPS} ./${test};}

@@ -22,11 +22,12 @@ namespace geometry {
       sweep_points(),
       psl(),
       _locked(false),
-      _log(clog,"PolygonalSubdivision_log.txt")
-  {
 #ifdef NDEBUG
-    _log.disable();
+      _log(clog,"/dev/null") // unportable hack
+#else
+      _log(clog,"log_PS.txt")
 #endif
+  {
   }
 
   PolygonalSubdivision::~PolygonalSubdivision() {
