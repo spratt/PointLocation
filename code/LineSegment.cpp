@@ -24,38 +24,63 @@ namespace geometry {
   LineSegment::LineSegment(int ax, int ay, int bx, int by)
     : first(ax,ay), second(bx,by)
   {
+    build();
   }
   
   LineSegment::LineSegment(Point2D& a, Point2D& b)
     : first(a), second(b)
   {
+    if(a.x < b.x) {
+      left = a;
+      right = b;
+    } else {
+      left = b;
+      right = a;
+    }
+    if(a.y < b.y) {
+      bottom = a;
+      top = b;
+    } else {
+      bottom = b;
+      top = a;
+    }
   }
   
   LineSegment::LineSegment(const Point2D& a, const Point2D& b)
     : first(a), second(b)
   {
+    if(a.x < b.x) {
+      left = a;
+      right = b;
+    } else {
+      left = b;
+      right = a;
+    }
+    if(a.y < b.y) {
+      bottom = a;
+      top = b;
+    } else {
+      bottom = b;
+      top = a;
+    }
   }
 
   LineSegment::~LineSegment() {}
 
-  const Point2D& LineSegment::getFirstEndPoint() const { return first; }
+  const Point2D& LineSegment::getFirstEndPoint()  const { return first;  }
   const Point2D& LineSegment::getSecondEndPoint() const { return second; }
 
-  const Point2D& LineSegment::getLeftEndPoint() const {
-    return (first.x < second.x)?first:second;
-  }
-  const Point2D& LineSegment::getRightEndPoint() const {
-    return (first.x < second.x)?second:first;
-  }
-  const Point2D& LineSegment::getTopEndPoint() const {
-    return (first.y > second.y)?first:second;
-  }
-  const Point2D& LineSegment::getBottomEndPoint() const {
-    return (first.y > second.y)?second:first;
-  }
+  const Point2D& LineSegment::getLeftEndPoint()   const { return left;   }
+  const Point2D& LineSegment::getRightEndPoint()  const { return right;  }
+  const Point2D& LineSegment::getTopEndPoint()    const { return top;    }
+  const Point2D& LineSegment::getBottomEndPoint() const { return bottom; }
 
   const bool LineSegment::isVertical() const {
     return first.x == second.x;
+  }
+
+  const bool LineSegment::isHorizontal() const {
+    return first.y == second.y;
   }
 
   IntersectionResult LineSegment::intersection(const LineSegment& other) const {
@@ -65,7 +90,8 @@ namespace geometry {
     ///////////////////////////////////////////////////////////////////////////
     IntersectionResult result;
     coord_t denom = Point2D::crossProduct(second-first,other.second-other.first);
-    coord_t num_a = Point2D::crossProduct(other.second-other.first,first-other.first);
+    coord_t num_a = Point2D::crossProduct(other.second-other.first,
+					  first-other.first);
     coord_t num_b = Point2D::crossProduct(second-first,first-other.first);
 
     if(denom == 0) {
@@ -88,13 +114,54 @@ namespace geometry {
   }
 
   bool LineSegment::operator<(const LineSegment& other) const {
-    // first sort by y
-    if(ydesc(*this,other)) return true;
-    if(yasc(*this,other)) return false;
-    // otherwise, sort by x
-    if(xdesc(*this,other)) return true;
-    if(xasc(*this,other)) return false;
-    // otherwise must be equal?
+    bool yasc_flag, ydesc_flag, xasc_flag, xdesc_flag;
+    if(this->getLeftEndPoint().x < other.getLeftEndPoint().x) {
+      ydesc_flag = ydesc(*this,other);
+      yasc_flag = yasc(*this,other);
+    } else {
+      yasc_flag = ydesc(other,*this);
+      ydesc_flag = yasc(other,*this);
+    }
+    if(this->getBottomEndPoint().y < other.getBottomEndPoint().y) {
+      xdesc_flag = xdesc(*this,other);
+      xasc_flag = xasc(*this,other);
+    } else {
+      xasc_flag = xdesc(other,*this);
+      xdesc_flag = xasc(other,*this);
+    }
+    if(ydesc_flag)
+      return true;
+    if(yasc_flag)
+      return false;
+    if(xdesc_flag)
+      return true;
+    // xasc or equal
+    return false;
+  }
+
+  bool LineSegment::operator>(const LineSegment& other) const {
+    bool yasc_flag, ydesc_flag, xasc_flag, xdesc_flag;
+    if(this->getLeftEndPoint().x < other.getLeftEndPoint().x) {
+      ydesc_flag = ydesc(*this,other);
+      yasc_flag = yasc(*this,other);
+    } else {
+      yasc_flag = ydesc(other,*this);
+      ydesc_flag = yasc(other,*this);
+    }
+    if(this->getBottomEndPoint().y < other.getBottomEndPoint().y) {
+      xdesc_flag = xdesc(*this,other);
+      xasc_flag = xasc(*this,other);
+    } else {
+      xasc_flag = xdesc(other,*this);
+      xdesc_flag = xasc(other,*this);
+    }
+    if(yasc_flag)
+      return true;
+    if(ydesc_flag)
+      return false;
+    if(xasc_flag)
+      return true;
+    // xdesc or equal
     return false;
   }
 
@@ -102,124 +169,90 @@ namespace geometry {
     return !operator>(other);
   }
 
-  bool LineSegment::operator>(const LineSegment& other) const {
-    return !((*this) == other) && !((*this) < other);
-  }
-
   bool LineSegment::operator>=(const LineSegment& other) const {
     return !operator<(other);
   }
 
-  // returns true if first belongs before other in ascending order of y
-  bool LineSegment::ydesc(const LineSegment& a, const LineSegment& b) {
-    if(a == b) return false;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Point Cases                                                           //
-    ///////////////////////////////////////////////////////////////////////////
-    bool a_is_point = a.getFirstEndPoint() == a.getSecondEndPoint();
-    bool b_is_point = b.getFirstEndPoint() == b.getSecondEndPoint();
-    if(a_is_point && b_is_point)
-      return
-	(a.getFirstEndPoint().y > b.getFirstEndPoint().y) ||
-	(a.getFirstEndPoint().y == b.getFirstEndPoint().y &&
-	 a.getFirstEndPoint().x > b.getFirstEndPoint().x);
-    if(a_is_point)
-      return Point2D::leftTurn(b.getLeftEndPoint(),
-			       b.getRightEndPoint(),
-			       a.getFirstEndPoint());
-    if(b_is_point)
-      return Point2D::rightTurn(a.getLeftEndPoint(),
-				a.getRightEndPoint(),
-				b.getFirstEndPoint());
-    
-    bool shared_left_end_point =
-      a.getLeftEndPoint() == b.getLeftEndPoint();
-    bool shared_right_end_point =
-      a.getRightEndPoint() == b.getRightEndPoint();
-    bool a_right_b_left =
-      a.getRightEndPoint() == b.getLeftEndPoint();
-    bool a_left_b_right =
-      a.getLeftEndPoint() == b.getRightEndPoint();
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Vertical Cases                                                        //
-    ///////////////////////////////////////////////////////////////////////////
-    if(a.isVertical() && b.isVertical())
-      return a.getTopEndPoint().y > b.getTopEndPoint().y;
-
-    if(a.isVertical()) {
-      if(shared_left_end_point ||
-	 shared_right_end_point ||
-	 a_right_b_left ||
-	 a_left_b_right)
-	return
-	  (a.getBottomEndPoint() == b.getLeftEndPoint()) ||
-	  (a.getBottomEndPoint() == b.getRightEndPoint());
-    }
-    if(b.isVertical()) {
-      if(shared_left_end_point ||
-	 shared_right_end_point ||
-	 a_right_b_left ||
-	 a_left_b_right)
-	return
-	  (b.getTopEndPoint() == a.getLeftEndPoint()) ||
-	  (b.getTopEndPoint() == a.getRightEndPoint());
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Shared End Point Cases                                                //
-    ///////////////////////////////////////////////////////////////////////////
-    if(shared_left_end_point)
-      return Point2D::leftTurn(a.getRightEndPoint(),
-			       a.getLeftEndPoint(),
-			       b.getRightEndPoint());
-    if(shared_right_end_point)
-      return Point2D::rightTurn(a.getLeftEndPoint(),
-				a.getRightEndPoint(),
-				b.getLeftEndPoint());
-    if(a_right_b_left)
-      return
-	(a.getLeftEndPoint().y > b.getRightEndPoint().y) ||
-	(a.getLeftEndPoint().y == b.getRightEndPoint().y &&
-	 a.getLeftEndPoint().x > b.getRightEndPoint().x);
-    if(a_left_b_right)
-      return
-	(a.getRightEndPoint().y > b.getLeftEndPoint().y) ||
-	(a.getRightEndPoint().y == b.getLeftEndPoint().y &&
-	 a.getRightEndPoint().x > b.getLeftEndPoint().x);
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // Basic Cases                                                           //
-    ///////////////////////////////////////////////////////////////////////////
-    return
-      (Point2D::rightTurn(a.getLeftEndPoint(),
-			  a.getRightEndPoint(),
-			  b.getFirstEndPoint())
-       &&
-       Point2D::rightTurn(a.getLeftEndPoint(),
-			  a.getRightEndPoint(),
-			  b.getSecondEndPoint()))
-      ||
-      (Point2D::leftTurn(b.getLeftEndPoint(),
-			 b.getRightEndPoint(),
-			 a.getFirstEndPoint())
-       &&
-       Point2D::leftTurn(b.getLeftEndPoint(),
-			 b.getRightEndPoint(),
-			 a.getSecondEndPoint()));
+  // returns true if left belongs above right in descending order
+  bool LineSegment::ydesc(const LineSegment& left, const LineSegment& right) {
+    // both vertical
+    if(left.isVertical() && right.isVertical())
+      return left.getBottomEndPoint().y > right.getBottomEndPoint().y;
+    // left is vertical
+    if(left.isVertical())
+      return left.getBottomEndPoint().y > right.getLeftEndPoint().y;
+    // left.left, left.right, right.left colinear
+    if(Point2D::colinear(left.getLeftEndPoint(),
+			 left.getRightEndPoint(),
+			 right.getLeftEndPoint()))
+      return Point2D::rightTurn(left.getLeftEndPoint(),
+				left.getRightEndPoint(),
+				right.getRightEndPoint());
+    // normal case
+    return Point2D::rightTurn(left.getLeftEndPoint(),
+			      left.getRightEndPoint(),
+			      right.getLeftEndPoint());
   }
 
-  bool LineSegment::yasc(const LineSegment& a, const LineSegment& b) {
-    return a != b && !ydesc(a,b);
+  // returns true if left belongs above right in ascending order
+  bool LineSegment::yasc(const LineSegment& left, const LineSegment& right) {
+    // both vertical
+    if(left.isVertical() && right.isVertical())
+      return left.getBottomEndPoint().y < right.getBottomEndPoint().y;
+    // left is vertical
+    if(left.isVertical())
+      return left.getBottomEndPoint().y < right.getLeftEndPoint().y;
+    // left.left, left.right, right.left colinear
+    if(Point2D::colinear(left.getLeftEndPoint(),
+			 left.getRightEndPoint(),
+			 right.getLeftEndPoint()))
+      return Point2D::leftTurn(left.getLeftEndPoint(),
+			       left.getRightEndPoint(),
+			       right.getRightEndPoint());
+    // normal case
+    return Point2D::leftTurn(left.getLeftEndPoint(),
+			     left.getRightEndPoint(),
+			     right.getLeftEndPoint());
   }
   
-  bool LineSegment::xdesc(const LineSegment& first, const LineSegment& other) {
-    return (first.getTopEndPoint() > other.getTopEndPoint());
+  bool LineSegment::xdesc(const LineSegment& bottom, const LineSegment& top) {
+    // both horizontal
+    if(bottom.isHorizontal() && top.isHorizontal())
+      return bottom.getLeftEndPoint().x > top.getLeftEndPoint().x;
+    // left is vertical
+    if(bottom.isHorizontal())
+      return bottom.getLeftEndPoint().x > top.getBottomEndPoint().x;
+    // left.left, left.right, right.left colinear
+    if(Point2D::colinear(bottom.getBottomEndPoint(),
+			 bottom.getTopEndPoint(),
+			 top.getBottomEndPoint()))
+      return Point2D::rightTurn(bottom.getBottomEndPoint(),
+				bottom.getTopEndPoint(),
+				top.getTopEndPoint());
+    // normal case
+    return Point2D::rightTurn(bottom.getBottomEndPoint(),
+			      bottom.getTopEndPoint(),
+			      top.getBottomEndPoint());
   }
 
-  bool LineSegment::xasc(const LineSegment& first, const LineSegment& other) {
-    return (first.getTopEndPoint() < other.getTopEndPoint());
+  bool LineSegment::xasc(const LineSegment& bottom, const LineSegment& top) {
+    // both horizontal
+    if(bottom.isHorizontal() && top.isHorizontal())
+      return bottom.getLeftEndPoint().x < top.getLeftEndPoint().x;
+    // left is vertical
+    if(bottom.isHorizontal())
+      return bottom.getLeftEndPoint().x < top.getBottomEndPoint().x;
+    // left.left, left.right, right.left colinear
+    if(Point2D::colinear(bottom.getBottomEndPoint(),
+			 bottom.getTopEndPoint(),
+			 top.getBottomEndPoint()))
+      return Point2D::leftTurn(bottom.getBottomEndPoint(),
+			       bottom.getTopEndPoint(),
+			       top.getTopEndPoint());
+    // normal case
+    return Point2D::leftTurn(bottom.getBottomEndPoint(),
+			     bottom.getTopEndPoint(),
+			     top.getBottomEndPoint());
   }
 
   ostream& operator<<(ostream& os, const LineSegment& ls) {
@@ -227,7 +260,26 @@ namespace geometry {
   }
   
   istream& operator>>(istream& is, LineSegment& ls) {
-    return is >> ls.first >> ls.second;
+    is >> ls.first >> ls.second;
+    ls.build();
+    return is;
+  }
+
+  void LineSegment::build(void) {
+    if(first.x < second.x) {
+      left = first;
+      right = second;
+    } else {
+      left = second;
+      right = first;
+    }
+    if(first.y < second.y) {
+      bottom = first;
+      top = second;
+    } else {
+      bottom = second;
+      top = first;
+    }
   }
 
   bool LineSegment::operator==(const LineSegment& other) const {

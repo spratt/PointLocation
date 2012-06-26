@@ -56,6 +56,7 @@ namespace geometry {
     const Point2D& getBottomEndPoint() const;
 
     const bool isVertical() const;
+    const bool isHorizontal() const;
     
     IntersectionResult intersection(const LineSegment&) const;
 
@@ -73,7 +74,9 @@ namespace geometry {
     bool operator!=(const LineSegment&) const;
 
   private:
-    Point2D first, second;
+    Point2D first, second, left, right, top, bottom;
+
+    void build(void);
   };
 
   ostream& operator<<(ostream&,const LineSegment&);
