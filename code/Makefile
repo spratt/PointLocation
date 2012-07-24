@@ -31,12 +31,15 @@ CXX = g++
 VALGRIND	= valgrind
 VGOPS		= --leak-check=full -v --show-reachable=yes
 
+LEDAROOT = /home2bak/spratt/Projects/PrioritySearchTree/LEDA/6.3-x64
+LEDAFLAGS= -L$(LEDAROOT) -I$(LEDAROOT)/incl -lleda -lX11 -lm
+
 # if mode is release, don't include debug info
 ifeq ($(mode),release)
-	CXXFLAGS=-O2 -Wall -DNDEBUG
+	CXXFLAGS=-O2 -Wall -DNDEBUG $(LEDAFLAGS)
 else
 	mode = debug
-	CXXFLAGS=-g -std=c++98 -pedantic-errors -Wall -Werror
+	CXXFLAGS=-g -std=c++98 -pedantic-errors -Wall -Werror $(LEDAFLAGS)
 endif
 
 BAR = "======================================================================"
@@ -64,10 +67,12 @@ TESTS	 	= ${TEST_LS}
 .SILENT: run_tests run_tests_mac
 
 #begin actual makefile stuff
+tests: ${TESTS} ${TEST_PS}
+
+all: get_libs tests
+
 get_libs:
 	cd lib;./get_libs.sh
-
-all: get_libs ${TESTS} ${TEST_PS}
 
 run: run_tests_mac run_test_ps
 

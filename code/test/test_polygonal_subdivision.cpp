@@ -46,11 +46,21 @@ int main(int argc, char** argv) {
 
   // read in the segments
   while(segment_begin != segment_end) {
-    ps.addLineSegment(*segment_begin);
+    try{
+      ps.addLineSegment(*segment_begin);
+    } catch(char const* str) {
+      cerr << "=== ERROR=== " << str <<endl;
+      return 1;
+    }
     ++segment_begin;
   }
   // ready the structure for queries
-  ps.lock();
+  try {
+    ps.lock();
+  } catch(string str) {
+    cerr << "=== ERROR=== " << str << endl;
+    return 2;
+  }
 
   time_t now = time(0);
   cerr << "Build took: " << difftime(now,last) << endl;
@@ -71,7 +81,7 @@ int main(int argc, char** argv) {
 	cout << "(" << result.above << ") (" << result.below << ")" << endl;
     }catch(char const* str) {
       cerr << "=== ERROR === " << str << endl;
-      return 1;
+      return 3;
     }
     ++point_begin;
   }

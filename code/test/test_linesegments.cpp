@@ -1,4 +1,5 @@
 #include <vector>
+#include <algorithm>
 #include <iostream>
 #include "../lib/PersistentSkipList/PersistentSkipList.hpp"
 #include "../Point2D.hpp"
@@ -7,32 +8,106 @@
 using namespace std;
 using namespace geometry;
 
+bool leftDescX(const LineSegment& a, const LineSegment& b) {
+  return a.getLeftEndPoint().x > b.getLeftEndPoint().x;
+}
+
 void printBar() {
   cout << "======================================================================"
        << endl;
 }
 
 int main(int argc, char** argv) {
-  PersistentSkipList<LineSegment> psl;
   /////////////////////////////////////////////////////////////////////////////
-  // Test intersection calculations                                          //
+  // Test getters                                                            //
   /////////////////////////////////////////////////////////////////////////////
 
-  // The following doesn't work if coord_t is int
-  // LineSegment line_a(0,0,2,2);
-  // LineSegment line_b(0,2,2,0);
-  // IntersectionResult result = line_a.intersection(line_b);
-  // cout << "Intersection of " << line_a << " with " << line_b
-  //      << " gives: " << result.point << endl;
+  LineSegment seg1(1,2,3,4);
+  assert(seg1.getLeftEndPoint().x == 1);
+  assert(seg1.getRightEndPoint().x == 3);
+  assert(seg1.getTopEndPoint().y == 4);
+  assert(seg1.getBottomEndPoint().y == 2);
+
+  LineSegment seg2(Point2D(1,2),Point2D(3,4));
+  assert(seg2.getLeftEndPoint().x == 1);
+  assert(seg2.getRightEndPoint().x == 3);
+  assert(seg2.getTopEndPoint().y == 4);
+  assert(seg2.getBottomEndPoint().y == 2);
+
+  const Point2D p1(1,2);
+  const Point2D p2(3,4);
+  LineSegment seg3(p1,p2);
+  assert(seg3.getLeftEndPoint().x == 1);
+  assert(seg3.getRightEndPoint().x == 3);
+  assert(seg3.getTopEndPoint().y == 4);
+  assert(seg3.getBottomEndPoint().y == 2);
+
   
-  // assert(result.isParallel == false);
-  // assert(result.isCoincident == false);
-  // assert(result.isIntersecting == true);
-  // assert(result.point == Point2D(1,1));
+  LineSegment seg4(3,4,1,2);
+  assert(seg4.getLeftEndPoint().x == 1);
+  assert(seg4.getRightEndPoint().x == 3);
+  assert(seg4.getTopEndPoint().y == 4);
+  assert(seg4.getBottomEndPoint().y == 2);
+
+  LineSegment seg5(Point2D(3,4),Point2D(1,2));
+  assert(seg5.getLeftEndPoint().x == 1);
+  assert(seg5.getRightEndPoint().x == 3);
+  assert(seg5.getTopEndPoint().y == 4);
+  assert(seg5.getBottomEndPoint().y == 2);
+
+  const Point2D p3(3,4);
+  const Point2D p4(1,2);
+  LineSegment seg6(p3,p4);
+  assert(seg6.getLeftEndPoint().x == 1);
+  assert(seg6.getRightEndPoint().x == 3);
+  assert(seg6.getTopEndPoint().y == 4);
+  assert(seg6.getBottomEndPoint().y == 2);
+
+  LineSegment seg7 = seg3;
+  assert(seg7.getLeftEndPoint().x == 1);
+  assert(seg7.getRightEndPoint().x == 3);
+  assert(seg7.getTopEndPoint().y == 4);
+  assert(seg7.getBottomEndPoint().y == 2);
+  
+  LineSegment seg8 = seg6;
+  assert(seg8.getLeftEndPoint().x == 1);
+  assert(seg8.getRightEndPoint().x == 3);
+  assert(seg8.getTopEndPoint().y == 4);
+  assert(seg8.getBottomEndPoint().y == 2);
+
+  LineSegment seg9(seg3);
+  assert(seg9.getLeftEndPoint().x == 1);
+  assert(seg9.getRightEndPoint().x == 3);
+  assert(seg9.getTopEndPoint().y == 4);
+  assert(seg9.getBottomEndPoint().y == 2);
+
+  LineSegment seg10(seg6);
+  assert(seg10.getLeftEndPoint().x == 1);
+  assert(seg10.getRightEndPoint().x == 3);
+  assert(seg10.getTopEndPoint().y == 4);
+  assert(seg10.getBottomEndPoint().y == 2);
+
+  vector<LineSegment> lsVector;
+  lsVector.push_back(seg1);
+  lsVector.push_back(seg2);
+  lsVector.push_back(seg3);
+  lsVector.push_back(seg4);
+  lsVector.push_back(seg5);
+  lsVector.push_back(seg6);
+  lsVector.push_back(seg7);
+  lsVector.push_back(seg8);
+  lsVector.push_back(seg9);
+  lsVector.push_back(seg10);
+  assert(lsVector.back().getLeftEndPoint().x == 1);
+  sort(lsVector.begin(),lsVector.end(),leftDescX);
+  assert(lsVector.back().getLeftEndPoint().x == 1);
 
   /////////////////////////////////////////////////////////////////////////////
-  // Test precedence                                                         //
+  // Test other stuff                                                        //
   /////////////////////////////////////////////////////////////////////////////
+  
+  PersistentSkipList<LineSegment> psl;
+
   LineSegment ab(0,0,2,3);
   LineSegment ac(0,0,5,0);
   LineSegment bc(2,3,5,0);

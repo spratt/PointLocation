@@ -29,9 +29,13 @@
 
 using namespace std;
 
+#include <LEDA/numbers/rational.h>
+
+using leda::rational;
+
 namespace geometry {
   // Defines the implementation and precision of coordinates
-  typedef int coord_t;
+  typedef rational coord_t;
   
   /////////////////////////////////////////////////////////////////////////////
   // Point2D interface                                                       //

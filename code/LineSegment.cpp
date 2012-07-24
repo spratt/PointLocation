@@ -114,6 +114,7 @@ namespace geometry {
   }
 
   bool LineSegment::operator<(const LineSegment& other) const {
+    clog << *this << " < " << other << endl;
     bool yasc_flag, ydesc_flag, xasc_flag, xdesc_flag;
     if(this->getLeftEndPoint().x < other.getLeftEndPoint().x) {
       ydesc_flag = ydesc(*this,other);
@@ -129,40 +130,26 @@ namespace geometry {
       xasc_flag = xdesc(other,*this);
       xdesc_flag = xasc(other,*this);
     }
-    if(ydesc_flag)
+    if(ydesc_flag) {
+      clog << "ydesc flag" << endl;
       return true;
-    if(yasc_flag)
+    } else if(yasc_flag) {
+      clog << "yasc flag" << endl;
       return false;
-    if(xdesc_flag)
+    } else if(xdesc_flag) {
+      clog << "xdesc flag" << endl;
       return true;
+    } else if(xasc_flag) {
+      clog << "xasc flag" << endl;
+      return false;
+    }
+    clog << "equal?" << endl;
     // xasc or equal
     return false;
   }
 
   bool LineSegment::operator>(const LineSegment& other) const {
-    bool yasc_flag, ydesc_flag, xasc_flag, xdesc_flag;
-    if(this->getLeftEndPoint().x < other.getLeftEndPoint().x) {
-      ydesc_flag = ydesc(*this,other);
-      yasc_flag = yasc(*this,other);
-    } else {
-      yasc_flag = ydesc(other,*this);
-      ydesc_flag = yasc(other,*this);
-    }
-    if(this->getBottomEndPoint().y < other.getBottomEndPoint().y) {
-      xdesc_flag = xdesc(*this,other);
-      xasc_flag = xasc(*this,other);
-    } else {
-      xasc_flag = xdesc(other,*this);
-      xdesc_flag = xasc(other,*this);
-    }
-    if(yasc_flag)
-      return true;
-    if(ydesc_flag)
-      return false;
-    if(xasc_flag)
-      return true;
-    // xdesc or equal
-    return false;
+    return !operator==(other) && !operator<(other);
   }
 
   bool LineSegment::operator<=(const LineSegment& other) const {
@@ -176,18 +163,31 @@ namespace geometry {
   // returns true if left belongs above right in descending order
   bool LineSegment::ydesc(const LineSegment& left, const LineSegment& right) {
     // both vertical
-    if(left.isVertical() && right.isVertical())
-      return left.getBottomEndPoint().y > right.getBottomEndPoint().y;
+    if(left.isVertical() && right.isVertical()) {
+      if(left.getBottomEndPoint().y > right.getBottomEndPoint().y)
+	return true;
+      if(left.getBottomEndPoint().y < right.getBottomEndPoint().y)
+	return false;
+      return left.getTopEndPoint().y > right.getTopEndPoint().y;
+    }
     // left is vertical
     if(left.isVertical())
       return left.getBottomEndPoint().y > right.getLeftEndPoint().y;
     // left.left, left.right, right.left colinear
     if(Point2D::colinear(left.getLeftEndPoint(),
 			 left.getRightEndPoint(),
-			 right.getLeftEndPoint()))
+			 right.getLeftEndPoint())) {
+      // all points colinear
+      if(Point2D::colinear(left.getLeftEndPoint(),
+			   left.getRightEndPoint(),
+			   right.getRightEndPoint())) {
+	return left.getBottomEndPoint().y > right.getBottomEndPoint().y;
+      }
+      // only 3 colinear
       return Point2D::rightTurn(left.getLeftEndPoint(),
 				left.getRightEndPoint(),
 				right.getRightEndPoint());
+    }
     // normal case
     return Point2D::rightTurn(left.getLeftEndPoint(),
 			      left.getRightEndPoint(),
@@ -197,18 +197,31 @@ namespace geometry {
   // returns true if left belongs above right in ascending order
   bool LineSegment::yasc(const LineSegment& left, const LineSegment& right) {
     // both vertical
-    if(left.isVertical() && right.isVertical())
-      return left.getBottomEndPoint().y < right.getBottomEndPoint().y;
+    if(left.isVertical() && right.isVertical()) {
+      if(left.getBottomEndPoint().y < right.getBottomEndPoint().y)
+	return true;
+      if(left.getBottomEndPoint().y > right.getBottomEndPoint().y)
+	return false;
+      return left.getTopEndPoint().y < right.getTopEndPoint().y;
+    }
     // left is vertical
     if(left.isVertical())
       return left.getBottomEndPoint().y < right.getLeftEndPoint().y;
     // left.left, left.right, right.left colinear
     if(Point2D::colinear(left.getLeftEndPoint(),
 			 left.getRightEndPoint(),
-			 right.getLeftEndPoint()))
+			 right.getLeftEndPoint())) {
+      // all points colinear
+      if(Point2D::colinear(left.getLeftEndPoint(),
+			   left.getRightEndPoint(),
+			   right.getRightEndPoint())) {
+	return left.getBottomEndPoint().y < right.getBottomEndPoint().y;
+      }
+      // only 3 colinear
       return Point2D::leftTurn(left.getLeftEndPoint(),
 			       left.getRightEndPoint(),
 			       right.getRightEndPoint());
+    }
     // normal case
     return Point2D::leftTurn(left.getLeftEndPoint(),
 			     left.getRightEndPoint(),

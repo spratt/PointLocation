@@ -69,24 +69,4 @@ namespace geometry {
     return is;
   }
 }
-namespace std {
-  /////////////////////////////////////////////////////////////////////////////
-  // Define limits for points                                                //
-  /////////////////////////////////////////////////////////////////////////////
-  geometry::Point2D numeric_limits<geometry::Point2D>::infinity() {
-    assert(numeric_limits<geometry::Point2D>::has_infinity);
-    return geometry::Point2D(numeric_limits<geometry::coord_t>::infinity(),
-			     numeric_limits<geometry::coord_t>::infinity());
-  }
-  geometry::Point2D numeric_limits<geometry::Point2D>::max() {
-    assert(! numeric_limits<geometry::Point2D>::has_infinity);
-    return geometry::Point2D(numeric_limits<geometry::coord_t>::max(),
-			     numeric_limits<geometry::coord_t>::max());
-  }
-  geometry::Point2D numeric_limits<geometry::Point2D>::min() {
-    assert(! numeric_limits<geometry::Point2D>::has_infinity);
-    return geometry::Point2D(numeric_limits<geometry::coord_t>::min(),
-			     numeric_limits<geometry::coord_t>::min());
-  }
-}
 

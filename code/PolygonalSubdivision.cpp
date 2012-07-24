@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "PolygonalSubdivision.hpp"
 #include <iostream>
+#include <sstream>
 
 namespace geometry {
 
@@ -61,6 +62,8 @@ namespace geometry {
     if(_locked)
       return;
 
+    clog << "There are " << line_segments_left.size() << " segments." << endl;
+
     // lock the division
     _locked = true;
 
@@ -84,12 +87,16 @@ namespace geometry {
     for(set< coord_t >::iterator coord = x_coords.begin();
 	coord != x_coords.end();
 	++coord) {
+      clog << "Considering x=" << *coord << endl;
+      int present = psl.getPresent();
       // add points whose left end points are on the sweep line
       {
 	LineSegment& line = line_segments_left.back();
 	while(line_segments_left.size() > 0 &&
 	      line.getLeftEndPoint().x <= (*coord)) {
+	  clog << "Considering segment for insertion: " << line << endl;
 	  if(line.isVertical()) {
+	    clog << "Too vertical." << endl;
 	    if(vertical_lines.count(line.getFirstEndPoint().x) == 0)
 	      vertical_lines[line.getFirstEndPoint().x] =
 		vector<LineSegment>();
@@ -99,10 +106,16 @@ namespace geometry {
 	    continue;
 	  }
 	  try {
+	    // DEBUG
+	    clog << "Inserting..." << endl;
+	    // END DEBUG
 	    psl.insert(line);
 	  } catch(char const* exception) {
 	    psl.drawPresent();
-	    throw "Error while trying to insert line";
+	    stringstream ss;
+	    ss << "Error while trying to insert line: " << line << endl
+	       << "Found: " << *(psl.find(line,present)) << endl;
+	    throw ss.str();
 	  }
 	  if(line_segments_right.count(line.getRightEndPoint().x) == 0) {
 	    line_segments_right[line.getRightEndPoint().x] =
@@ -113,20 +126,36 @@ namespace geometry {
 	  line = line_segments_left.back();
 	}
       }
+      clog << "Done insertions" <<endl;
       // remove points whose right end points are at most the sweep line
-      int present = psl.getPresent();
       {
 	vector<LineSegment>::iterator it =
 	  line_segments_right[*coord].begin();
 	vector<LineSegment>::iterator end = 
 	  line_segments_right[*coord].end();
 	while(it != end) {
+	  clog << "Deleting segment: " << *it << endl;
 	  PSLIterator<LineSegment> toRemove = psl.find((*it),present);
 	  if((*it) != (*toRemove)) {
 	    clog << "=== ERROR ===" << endl
 		 << "Deletion mismatch" << endl
 		 << "Sought: " << (*it) << endl
 		 << "Found:  " << (*toRemove) << endl;
+#ifndef NDEBUG
+	    clog << "Search path: ";
+	    for(vector<LineSegment>::iterator path_item = psl.lastSearchPath.begin();
+		path_item != psl.lastSearchPath.end();
+		++path_item)
+	      clog << *path_item << ", ";
+	    clog << endl;
+#endif
+	    clog << "Printing contents of psl: " << endl;
+	    for(PSLIterator<LineSegment> psl_it = psl.begin(present);
+		psl_it != psl.end(present);
+		++psl_it) {
+	      clog << *psl_it << ", ";
+	    }
+	    clog << endl;
 	  }
 	  assert((*it) == (*toRemove));
 	  toRemove.remove();
@@ -134,7 +163,7 @@ namespace geometry {
 	}
 	line_segments_right.erase(*coord);
       }
-      
+      psl.drawPresent();
       psl.incTime();
       sweep_points.push_back(*coord);
     }
