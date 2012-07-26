@@ -92,7 +92,8 @@ run_test_ps:	${TEST_PS}
 	@echo ${BAR}
 	@echo run_test_ps
 	@echo ${BAR};
-	cp ${DATA_DIR}/points.txt ${TEST_DIR}/points.txt
+	cp ${DATA_DIR}/points.txt ${TEST_DIR}/gen_points.txt
+	test/convert_points.py test/gen_points.txt > test/points.txt
 	cp ${DATA_DIR}/segments.txt ${TEST_DIR}/segments.txt
 	cp ${DATA_DIR}/naive.txt ${TEST_DIR}/naive.txt
 	time ${TEST_DIR}/test_polygonal_subdivision ${TEST_DIR}/segments.txt ${TEST_DIR}/points.txt > ${TEST_DIR}/psl.txt
